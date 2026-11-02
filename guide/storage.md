@@ -43,4 +43,4 @@ Short answer: keep one of each seasonal decor type, release duplicates and commo
 
 ## To verify
 
-- Discord and Reddit threads were not readable; check them for disagreement.
+- Discord #faq is now covered verbatim in [discord-faq.md](discord-faq.md) (see "I'm hitting the pikmin limit, which ones should I release?" and "How do Rare Decor Pikmin work?"). Reddit was not readable.
