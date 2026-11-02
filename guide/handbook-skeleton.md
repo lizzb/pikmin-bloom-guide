@@ -21,7 +21,7 @@ Trust order when sources disagree: D > H > W > R, and newer beats older. `🚧 m
 
 - Walk, plant flowers, raise Pikmin. Monthly **Event Challenges** are the only real "goal" system. ✅H
 - Free daily: gift from Shop, detector. 🟡R 🕰️
-- Only feed special nectar to **budded** Pikmin (2 petals per nectar). 🟡W
+- Only feed special nectar to **budded** Pikmin (2 petals per nectar). ✅L
 - Keep your squad full and hands empty while planting. 🟡R
 - Do your mushrooms each day; don't collect month-end mushrooms until the 1st if you want new-month nectar. ✅D
 - Spend coins on **Pikmin storage** first. ✅D
@@ -39,15 +39,15 @@ Trust order when sources disagree: D > H > W > R, and newer beats older. `🚧 m
 - Spend coins on storage first; extra room lets you keep full single-colour squads for elemental mushrooms. ✅D
 
 ### What to release (in order)
-1. Duplicates of decor you already have. ✅D
-2. Old event Pikmin. Returning decor gets only a small boost, and there is no guarantee event Pikmin return. ✅D
-3. Ones you don't think are cute. ✅D
-4. Plain, weak, unneeded regular Pikmin. 🟡R
+Every rule uses something you can see on screen.
+1. **Same colour + decor you already own.** Sort by Decor Category, nickname the first of each, release later copies. ✅D A yellow icon on a seedling means you already own that colour + decor. ✅D
+2. **Old event decor** from an event that has ended. Returning decor gets only a small boost, and there is no guarantee event Pikmin return. ✅D
+3. **Lowest friendship first:** sort by Friendship Level, ascending, and release from the bottom. Skip rare-eligible categories (§3) and any Pikmin you're raising to 4 hearts. 🟡C
+4. **No decor and under 4 hearts** in a non-rare category. 🟡C
 
 ### What to keep
 - Anything in a **rare-decor category** until you've unlocked rare decor, because releasing earns points. ✅D (see §3)
-- Your strongest Pikmin. Purple has the best base attack, and the mushroom squad cap is 40. ✅D
-- Favourites: lifelog memories, special-location decor. ❓R
+- Your mushroom squad: highest hearts, and Purple first (best base attack). The squad cap is 40, and elemental mushrooms take one colour only, so keep full single-colour sets. ✅D
 
 ### Seasonal decor: discard at month end?
 - **Mostly no need to keep it for the collection.** Once a decor is filled in on the Decor Pikmin list, it stays filled even if released. ✅D
@@ -56,9 +56,16 @@ Trust order when sources disagree: D > H > W > R, and newer beats older. `🚧 m
 - Older advice in this repo said "keep one of each"; the dex-persistence fact above makes that weaker. Keep one only if slots are spare.
 
 ### What you get for releasing
-- **10 petals.** ✅L
-- Only common petals, e.g. releasing a Pikmin fed a red hibiscus gives plain red, not red hibiscus. ❓ (lizz suspects this but may have been unlucky; see Open Questions for a test)
+- **10 basic petals** ✅L ✅W, in the colour of the nectar the Pikmin was fed most recently; white if it never got nectar. 🟡W This matches lizz's observation: a Pikmin fed red hibiscus gives plain red petals, not red hibiscus.
 - Rare-decor points: 5 without decor, 20 with decor. ✅D
+
+### Keeping one of every Pikmin?
+- You don't need to, for the collection: the decor list stays filled after release. ✅D
+- **No official total exists** for decor Pikmin. A Feb 2026 guide says 116 types / 833 decor Pikmin, but the passage is garbled. ❓ An older wiki figure was 400+ across 60+ sets. 🕰️
+- **The wiki lists 40 location categories**, each with up to 8 colour variants (Red, Yellow, Blue, Purple, White, Winged, Rock, Ice). 🟡W Roadside alone is 32. ✅D So the regular set alone is likely past 300. ❓C
+- **Live-event sets:** 18, per the wiki (Super Mario Keychain, Present Sticker (Gold), Chess Piece, Photo Button Badge, ...). Some re-run (e.g. Ice Cream: Classic in 2024, 2025, 2026). 🟡W Monthly in-app event sets (chocolate, spring sticker, klompen keychain, playing cards at 14 types) are on top. ✅H
+- **Starting in June 2026:** regular decor is available any time, so the missing piece is only events before June that haven't re-run. My estimate is roughly 600-830 slots for one of everything, tied to the 833 figure above. ❓C (I can't make this tighter without a real count.)
+- **Rules that apply:** 300 slots by default; one per colour + decor; you can't obtain an expired event set again unless it re-runs (e.g. Afternoon Tea in March 2026). ✅H
 
 ### Decor-tracking tips
 - Name the first Pikmin of each decor so you know which to keep. ✅D (nickname by pluck order, since Date Plucked isn't shown)
@@ -78,7 +85,7 @@ Trust order when sources disagree: D > H > W > R, and newer beats older. `🚧 m
 - **Finders:** [pikmin-map.pixelpirate.fr](https://pikmin-map.pixelpirate.fr/), [decor-pikmin-finder](https://decor-pikmin-finder.vercel.app/). May not match the game exactly. ✅D
 - **Lifelog photo trick:** a photo entry can trigger a seedling expedition at that location if the spot is unoccupied, you haven't already triggered one that day, and it's within 10 km of where you travelled. ✅D
 - **Luck:** seedling type is random. See the Pikmin Luck Calculator and the coupon-collector problem. ✅D
-- **Pikmin size** differences are cosmetic. ✅D
+- **Pikmin size** varies slightly; it is cosmetic and doesn't affect gameplay. ✅D
 
 ---
 
@@ -155,6 +162,7 @@ All rows 🟡C. **Unlocking a category** costs extra: expected seedlings needed 
 - **4 hearts** makes a standard seedling eligible for its decor gift trip. ✅D
 - **Heart sizes:** a red heart takes 53 points, so 4 hearts is 212. 🟡W
 - **5th-feed bonus:** feeding a Pikmin that has had 4 petals plucked gives +10 on top of the usual 1. 🟡W Other notes count the feeds differently (5 vs 6). ❓R
+- **Check how many times a Pikmin has been fed:** double-tap it to see how many consecutive petal collections you've made. ✅H (read via search summary; press-and-hold in Reddit notes is unconfirmed ❓). A glowing Pikmin has one feed pending, so fed = shown + 1, except white nectar on a leaf, which makes a bud and gives no petals. 🟡C
 - **Nectar-efficient loop:** feed to the 5th feed, don't collect that last petal, wait 2 hours for the counter to reset, repeat. 🟡W/R
 - **Time-efficient loop:** pluck all 6 to bare, walk ~1,800 steps to regrow a leaf, repeat. Doesn't work 9 pm to 4 am. 🟡W
 - **Maturity timers:** bare to leaf 6 h, leaf to bud 8 h, each step takes 12 s off (1,800 and 2,400 steps); only squad Pikmin get the leaf timer reduction. 🟡W
@@ -171,8 +179,8 @@ All rows 🟡C. **Unlocking a category** costs extra: expected seedlings needed 
 
 - **Nectar:** from fruit (walking, expeditions, mushrooms, planting near Big Flowers) and weekly step challenges. 🟡W
 - **Petals:** from feeding nectar then plucking a glowing flower, blooming, release (10 ✅L), weekly flower challenge, shop. 🟡W
-- **Caps:** 200 per type default, expandable with real money. 🟡R 🕰️
-- **Budded Pikmin** give 2 petals for 1 nectar. 🟡W Leaf to bud: feed 1 white nectar or walk ~2,400 steps. 🟡W
+- **Caps:** petals start at 300 per type (they were 200 before 2022-07-11), expandable with real money. 🟡W Nectar cap: notes say 200 🕰️R, but it may have been raised with petals. ❓
+- **Budded Pikmin** give 2 petals for 1 nectar. ✅L Leaf to bud: feed 1 white nectar or walk ~2,400 steps. 🟡W
 - **Fruit:** one small fruit per Pikmin; large fruit needs up to 12 carriers; elemental and event fruit sizes differ. 🟡W
 - **Large fruit nectar:** floor(mass/10), plums floor(mass/8). 🟡W
 
@@ -193,7 +201,7 @@ Roughly in order of cost; the order is my judgement. ❓C
    - Weekly challenges (primary/secondary).
    - Community Day: plain flowers bloom as the flower of the month.
    - The shop.
-2. **Feed buds, not leaves.** Same nectar gives 2 petals. 🟡W
+2. **Feed buds, not leaves.** Same nectar gives 2 petals. ✅L
 3. **Weekly challenges every week.** Step challenge gives each of the 4 regular nectars, and the planting challenge gives the month's petals. ✅D Rewards are set on Monday and don't change if the month ends mid-week. ✅D
 4. **Mushrooms with timing:** reward collection time decides which month's nectar you get. Don't tap Collect on a month-end mushroom until the 1st. ✅D Event mushrooms drop old and current species. 🟡R
 5. **Instabloom** a Big Flower: 150 petals of one type (unbloomed), 80 (already bloomed). ✅D Unbloomed gives a token of nectar (7 in one test); the postcard shows the petals you used. ✅D
@@ -222,21 +230,99 @@ Also: stages that overflow your storage can be released or received later; uncla
 - **Elemental:** send only the matching type. ✅D
 - **More nectar:** join or host with extra players; 4-star large regular beats large elemental. ✅D
 
+### Which size to pick (small / normal / large / giant)
+You get 3 free battles a day, so pick the biggest one your group can reach 3 stars on. 🟡C
+
+| Size | Red HP | Min Pikmin | Max players |
+|---|---|---|---|
+| Small | 87,400 | 1 | 25 |
+| Normal | 670,600 | 10 | 30 |
+| Large | 2,916,000 | 15 | 35 |
+| Giant | 3,499,200 | 20 | 40 |
+
+🟡W. Stars and rewards (Red): ✅W for the thresholds, 🟡C for nectar totals (from the fruit ranges in overview.md)
+
+| | 3 stars | 4 stars |
+|---|---|---|
+| **Small** | 1,080 AP: 5 cherries + postcard | 2,240 AP: 2 cherries + apple + postcard (~25-60 nectar) |
+| **Large** | 4,050 AP: 4 peaches + postcard (~80-185) | 5,600 AP: 3 watermelons + peach + special fruit + postcard (~190-410 + 1 special) |
+
+- Score is total attack power plus a 5%, 10%, 15% or 20% time bonus; join early. ✅W
+- Matching colour doubles attack power. ✅W
+- A 4-star large regular mushroom gives an extra coloured fruit compared with a large elemental. ✅D
+- Choose by **what you need**: event mushrooms for event currency, colour mushrooms for a nectar colour (the Discord nectar-ping roles announce them). ✅D
+- **Small is only worth it** when you're solo, below ~2,000 AP, or you need a quick 3 stars for a mission. Otherwise it pays roughly a seventh as much nectar. 🟡C
+- I could not read the normal and giant reward rows in full. ❓
+
 🚧 migrate: attack power tips, October 2026 event notes (overview.md L1041-1079, date-stamped, move to an events page)
 
 ---
 
 ## 8. Planting flowers and Big Flowers
 
-- Planting area reaches its max at level 55. ✅D
-- It's based on distance, not steps or time; up to 20 km/h. ✅D
-- Don't return to the same area within 5 minutes. ✅D
-- Stationary: single-petal pulse every 5 minutes. ✅D
-- Squad of 40 at level 55 gives the biggest area. ✅D
-- **Big Flower:** 40 m radius. After it blooms, plant 1 more flower within the first hour to trigger the fruit expedition. ✅D
-- **Coins from planting:** conflicting numbers in notes (1 per 500, max 30 vs 1 per 250, max 60). ❓R
+### What counts as "the same area"
+- The world is a grid of cells about **5 x 5 m**. One flower per cell, and a cell can't be replanted for **5 minutes**. ✅W
+- Flowers land in a rectangle of cells around you. Its size steps up with squad size ✅W (metres are my conversion, 🟡C):
 
-🚧 migrate: planting table (overview.md L873-879)
+| Squad | Min level | Cells | About | Petals/min | A petal every |
+|---|---|---|---|---|---|
+| 1-9 | 1 | 2x1 (2) | 10 x 5 m | 2 | 30 s |
+| 10-19 | 7 | 3x2 (6) | 15 x 10 m | 3 | 20 s |
+| 20-29 | 9 | 4x3 (12) | 20 x 15 m | 4 | 15 s |
+| 30-39 | 15 | 5x4 (20) | 25 x 20 m | 5 | 12 s |
+| 40 | 55 | 6x5 (30) | 30 x 25 m | 6 | 10 s |
+
+- **Your 2.5 m back-and-forth path:** every pass lands in cells you just planted, so nothing new grows until 5 minutes pass. ❓C
+- **To avoid wasting petals,** separate the two legs by at least the footprint width across your direction of travel: 5 m for a squad under 10, up to 25 m at 40. Use the larger number plus a few metres for GPS jitter. ❓C (the wiki is inconsistent about which axis is longer, and whether the area is centred on you)
+- **Simplest rule:** don't return to the same area within 5 minutes. ✅D A loop of about 5 minutes (roughly 400 m at 5 km/h) does that.
+
+### Does the rate change with phone state?
+- Planting continues with the app closed and the phone in your pocket. ✅H
+- Flowers depend on **distance moved**, not steps or time, up to about 20 km/h. ✅D (the wiki says the exact cap, 16-20 km/h, varies)
+- I found **no source** saying the rate differs between app open, screen off, background, squad screen or bird's-eye view. ❓
+- Reported problem: some Android players say planting stops with the screen off; setting the app's battery usage to Unrestricted fixed it for one. ❓
+- If you stop moving while petals drain, you get push notifications at 3 and 15 minutes. ✅H
+- The planting accelerator doubles flowers for 15 minutes and doubles petal use. ✅H
+
+### Standing in one spot: the math
+A cell refills every 5 minutes, so you plant one footprint per 5 minutes however many petals you burn. All 🟡C, from the table above.
+
+| Squad | Flowers / 5 min | Petals / 5 min (continuous) | Flowers per petal | Flowers / hour | Petals / hour | Time 300 petals last | Flowers from 300 |
+|---|---|---|---|---|---|---|---|
+| 1-9 | 2 | 10 | 0.2 | 24 | 120 | 150 min | 60 |
+| 10-19 | 6 | 15 | 0.4 | 72 | 180 | 100 min | 120 |
+| 20-29 | 12 | 20 | 0.6 | 144 | 240 | 75 min | 180 |
+| 30-39 | 20 | 25 | 0.8 | 240 | 300 | 60 min | 240 |
+| 40 | 30 | 30 | 1.0 | 360 | 360 | 50 min | 300 |
+
+- **Pulse instead:** start, stop, wait 5 minutes, repeat. One petal each time plants the whole footprint (30 flowers at squad 40). ✅D That is 12 petals an hour for the same flowers per hour as the table, so about 30x cheaper at 40. 🟡C
+- Lag can waste an extra petal if you stop late. ✅W
+- Moving fast is far better per petal: one Reddit estimate was about 15 flowers per petal at 40 squad, 4-year-old data. ❓🕰️
+
+### Squad size when you shrink it to feed a subset
+- The area and petal rate change only at 10, 20, 30 and 40 Pikmin. 31 plants exactly like 39. ✅W
+- **Minimum I'd use: 10.** Under 10 you plant a third of the area for two-thirds of the petals. At 20 and 30 you plant 2x and 3.3x the area of 10 at 1.3x and 1.7x the petals. 🟡C
+- Pad your subset with spare Pikmin up to the next multiple of 10 (10, 20, 30). The wiki warns against reducing squad size while planting. ✅W
+- Which brackets you can use depends on level: 10 at level 7, 20 at level 9, 30 at level 15, 40 at level 55. ✅W
+
+### Walking without staring at your phone
+1. **Fill your squad first** and pick a petal jar with enough: at 40 squad it burns 6 petals a minute, about 360 an hour. 🟡C
+2. **Start planting when you set off**; it stops on its own when petals run out. ✅H
+3. **Plan loops, not out-and-backs.** Each lap at least 5 minutes long, and avoid roads and waterways, which can't take flowers. ✅H
+4. **Let the notifications do the checking.** You'll get one at 3 minutes if you've stalled. ✅H
+5. **Big Flowers need no counting:** loop inside the 40 m ring on the map; it blooms at 300 flowers, shared across all players. ✅W
+6. **Battery:** set location to "always", leave the screen off, and turn off "With Others". ❓ (from tech-site tips and the Help Center; battery use is a known weak spot)
+
+### Big Flowers
+- **Official name:** "Big Flower". Stages: Sprout (0-49 flowers), Bud (50-299), Blooming (300+). ✅W "Big sprout" and "big bloom" are community terms.
+- **Radius** 40 m; stays bloomed 23 hours; planting in the first hour earns a fruit expedition. ✅W ✅D
+- **Coins from planting:** 1 per 250 flowers in a single planting, up to 60 a day. ✅H (this replaces the conflicting 500/30 note.)
+
+#### When to bloom with petals (instabloom)
+- **Cost:** 150 petals (unbloomed), 80 (already bloomed, postcard only). ✅D
+- **Not worth it for nectar.** Planting is far cheaper: a bloom needs 300 flowers, which is about 10 pulse-petals at squad 40. 🟡W/C
+- **Worth it when** your petals would overflow the cap anyway, you want that special postcard, or you need a specific colour fast. 🟡W
+- Only the month's primary and secondary species work. ✅D
 
 ---
 
@@ -244,10 +330,21 @@ Also: stages that overflow your storage can be released or received later; uncla
 
 - **Friend cap:** 650 across all Niantic games (since 2026-01-13). ✅D
 
+### What friends are for
+| Interaction | Real game value? |
+|---|---|
+| Mushroom battles: more players raises total attack power and score, so better rewards; invite via bullhorn | **Yes** ✅D |
+| Weekly challenge groups: planting reward is 1 petal per 1,000 flowers planted per player in the group | **Yes** ✅D |
+| Invite code: a new player who enters yours gets 20 petals + 10 nectar; you can earn up to 4 invite rewards a month | Small 🟡W |
+| Postcards | None for gameplay ✅D |
+| Gift Bundles from the shop | Gift only 🟡W |
+| Party walks | Keepsake only (see below) 🟡W |
+| Friendship badges: Apprentice (1), Novice (200), Enthusiast (800), Expert (1,600), Master (3,200) interactions | Badge only 🟡W |
+
 ### Postcards
 - **Point:** none for gameplay; they're a collectible and a gift. ✅D
 - **Sending:** the Pikmin and postcard travel 12 hours, whatever the distance. ✅D✅W
-- **Return:** the Pikmin returns right after your friend receives it; if the friend is inactive, 2 days. ✅D
+- **Return:** the Pikmin returns right after your friend receives it; if the friend is inactive, 2 days. ✅D (the wiki says 3 days; Discord is newer.)
 - **Cooldown:** one postcard per friend per 24 hours. 🟡W
 - **Storage:** 400 to start. 🟡W
 - **Friendship:** a Pikmin sent to retrieve a postcard gets 1 point. 🟡W
@@ -282,11 +379,14 @@ Also: stages that overflow your storage can be released or received later; uncla
 
 ## Open questions
 
-- [ ] Does release always give plain-colour petals? **Test:** feed a Pikmin one seasonal nectar, release, check which jar goes up by 10. Repeat about 5 times. (lizz)
+- [x] Release gives plain-colour petals: wiki says so, matches lizz's observation (§1)
 - [ ] Rare decor: points per category, Huge seedling 200 vs 230, gold seedlings, level carry-over (§3)
 - [ ] Seedling unlock levels: overview.md has two conflicting tables (L259-262 vs L1363-1367)
 - [ ] Mushroom unlock level: 9, 12, or 15?
-- [ ] Coins from planting (§8)
+- [ ] Planting footprint axis and whether it's centred on you (§8)
+- [ ] Does the planting rate differ with screen off, background, or other screens? (§8)
+- [ ] Normal and giant mushroom reward rows (§7)
+- [ ] Real total of decor Pikmin (§1)
 - [ ] Do step slots share steps across seedlings or split them?
 - [ ] Do Party Walk steps do anything beyond the Memento Card? (§9)
 - [ ] Is the 3 am mushroom reset in effect now (the FAQ says "from Oct 5")?
