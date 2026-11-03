@@ -77,15 +77,78 @@ Every rule uses something you can see on screen.
 
 ---
 
-## 2. Decor Pikmin and finding decor
+## 2. Decor Pikmin, finding decor, and getting seedlings
 
 - **Where decor comes from:** the type of place where you found the seedling (OpenStreetMap and Foursquare data). ✅D
 - **Standard seedling:** reach 4 hearts, then it makes a gift trip back to its origin and returns as a decor Pikmin. ✅D
 - **Huge and Gold seedlings** hatch with decor. ✅D
 - **Finders:** [pikmin-map.pixelpirate.fr](https://pikmin-map.pixelpirate.fr/), [decor-pikmin-finder](https://decor-pikmin-finder.vercel.app/). May not match the game exactly. ✅D
-- **Lifelog photo trick:** a photo entry can trigger a seedling expedition at that location if the spot is unoccupied, you haven't already triggered one that day, and it's within 10 km of where you travelled. ✅D
+- **Lifelog photo trick:** see [Getting more seedlings](#getting-more-seedlings) below for the step-by-step. ✅D
 - **Luck:** seedling type is random. See the Pikmin Luck Calculator and the coupon-collector problem. ✅D
 - **Pikmin size** varies slightly; it is cosmetic and doesn't affect gameplay. ✅D
+
+### Getting more seedlings
+
+Order of effort for a free-to-play player, cheapest first.
+
+**Every day**
+1. **Detector (radar):** 1 free use a day, resets at midnight. Unlocks at level 4. Extra scans cost 100 coins. ✅W
+   - Shows 2-4 items within 100 m: 1-2 seedlings and 1-3 fruit, and you can send Pikmin for them right away. The first two are always 1 seedling + 1 fruit; the rest are random. ✅W
+   - One seedling per scan is guaranteed to match a decor type shown on the Detector's nearby-types icons. If no decor places are in range you get Roadside. ✅W
+   - Scan where the icons show the decor you want (near a big sprout, or a busy area). The list stays fixed until you move 25 m from the last scan point. ✅W
+2. **Lifelog photo** (one expedition per day, steps below). ✅D
+3. **Walk with planting on.** About one seedling or fruit appears per ~1,200-1,300 steps, at the place you were walking at the time. Planting flowers raises the chance of finding seedlings and fruit. 🟡R
+4. **Weekly challenge.** Pays nectar, petals, sometimes a seedling. Rewards are fixed on Monday; if the month rolls over mid-week you still get last month's flowers and any gold seedling. ✅D (gold) 🟡R (seedling)
+5. **Level-ups** include seedling rewards. 🟡R
+
+**Special seedlings**
+
+| Kind | Steps | Hatches with decor? | How to get it |
+|---|---|---|---|
+| Huge | 10,000 | Yes | Appears while you walk; the Detector doesn't reveal it. Only one can be held at a time. ❓ (see below) |
+| Gold | 100 | Yes | Events (e.g. end of the Flower Planting Challenge), Special Spots, weekly challenges. Inviting friends is listed on the wiki. ✅D 🟡W |
+| Colored Gold (Red to Ice) | varies | Yes | Premium Event Pass after four Event Challenge stages, or Special Mission/Completion Tickets from the shop. Both are paid. 🟡W |
+| Silver | varies by event (e.g. 2,000) | Yes | Events, various methods. Added Dec 2025. 🟡W |
+
+- Gold seedlings can contain Pikmin types you haven't unlocked yet. 🟡W
+- Huge seedling location: one source says it favours places you haven't found seedlings before, your overview notes say places you spend more time. Unresolved, don't plan around either. ❓
+- Seedlings from mushrooms are gone. The old rates were ~35% per normal and ~20% per giant. ✅D 🕰️D
+- Official walks sometimes include seedlings (April 2026). ✅H
+
+**Event seedlings**
+- Hatch every event seedling, even for sets you already own; they raise your attack power for event mushrooms. 🟡R
+- Hold mushrooms that you'd otherwise finish early if a mid-month event will pay seedlings. ✅D
+- Gold seedling rewards are checked for the week's start date, not the day you finish. ✅D
+
+**Storage and growth**
+- Seedling storage is 30 (not counting those growing); the shop can raise it. 🟡W
+- Backpack slots limit how many grow at once: 2 to start, more from level-ups or the shop. 🟡R
+- **Recycle** on a seedling's info page discards it without growing it. 🟡W
+- A seedling's dex yellow icon means you already own that colour + decor, so skip it unless you need the Pikmin. ✅D (§1)
+- Keep a few 1,000-step Red/Yellow/Blue seedlings to plant right before a level-up, when the next level asks for "Grow X Pikmin". 🟡R
+
+#### Lifelog seedling trick, step by step
+
+What it does: you pick a location on the map, and if the rules below allow it, a seedling expedition appears there. It is the only way to choose where a seedling spawns. ✅D
+
+1. Open the **Lifelog** (main menu, the large box with a map). 🟡W
+2. Add a **photo entry**: take a photo, or choose one from your library. Your phone's photo library permission is needed for existing photos. The 9 pm daily recap also offers a photo from your day. 🟡W 🟡R
+3. Set the **location pin**. Move it by hand, or use the location already stored in the photo. The pin is what matters; it is the spot a seedling appears. 🟡W
+4. Optional: add a sticker, a note (up to 300 characters), or change the date to a previous day. 🟡W
+5. Save. If every condition below holds, a new seedling appears on the map at the pin. Collect it from the Expeditions tab like any other. ✅D
+
+**Conditions (all must hold)** ✅D
+- The pin spot is **not occupied** by another seedling, Pikmin or fruit on your map.
+- You haven't **already triggered a lifelog expedition today**.
+- The spot is **within 10 km** of where you have travelled.
+- For a **previous day's** entry, "travelled" means the area you explored on that day.
+- If the spot has no unique places in its cell, the seedling may land in an adjacent cell, even an occupied one. 🟡W
+
+**How to use it**
+- Pick pins on or near the place type you want, using the decor finders in §2. The wiki says the seedling's decor is "appropriate to that area" but doesn't say how it is chosen, so treat the result as likely, not guaranteed. ❓
+- Collect or clear the previous spawn there first so the spot isn't occupied.
+- Whether the photo itself has to be from that place isn't documented; only the pin is described as mattering. ❓
+- Whether the once-per-day limit counts the day you save the entry or the day the entry is dated is unclear. If dated days count separately you could backfill earlier days. ❓
 
 ---
 
@@ -388,6 +451,10 @@ A cell refills every 5 minutes, so you plant one footprint per 5 minutes however
 - [ ] Normal and giant mushroom reward rows (§7)
 - [ ] Real total of decor Pikmin (§1)
 - [ ] Do step slots share steps across seedlings or split them?
+- [ ] Huge seedling spawn rule: new places or places you linger? Does the Detector ever show them? (§2)
+- [ ] Lifelog seedling: does photo content matter, is the daily limit per entry date or per save date, how is the decor chosen? (§2)
+- [ ] Do happy Pikmin (more hearts) bring back better seedlings from expeditions? (§2)
+- [ ] Do friend invites really give gold seedlings? (§2)
 - [ ] Do Party Walk steps do anything beyond the Memento Card? (§9)
 - [ ] Is the 3 am mushroom reset in effect now (the FAQ says "from Oct 5")?
 
