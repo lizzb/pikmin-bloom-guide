@@ -9,6 +9,10 @@ Personal notes and guides for Pikmin Bloom, kept as plain Markdown.
 - [Handbook skeleton](guide/handbook-skeleton.md) — restructure of overview.md with confidence tags (✅ confirmed / 🟡 probable / ❓ unconfirmed / 🕰️ outdated)
 - [Discord #faq, verbatim](guide/discord-faq.md) — all 36 threads from the Pikmin Bloom! Discord FAQ forum (copied 2026-11-01)
 
+## Big Flower bloom planner
+
+[tools/bloom-planner.html](tools/bloom-planner.html) is a single-file, phone-friendly page. Pick a flower and colour, enter your petals and nectar, and it writes a short planting guide from the Pikipedia blooming flowchart, with sliders to fine-tune the mix. Open it in a browser, or serve it with `python3 -m http.server --directory tools`. Logic tests: `node tools/test_bloom_engine.js`.
+
 ## Rebuilding the handbook page
 
 The handbook is also published as a private, searchable HTML page (a Claude artifact) for reading on a phone. The page is generated from `guide/handbook-skeleton.md`, so edit the Markdown, not the HTML:

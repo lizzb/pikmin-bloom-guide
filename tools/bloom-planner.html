@@ -1,0 +1,653 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Big Flower Bloom Planner</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: one narrow column built for a thumb. Steps 1-3 collect input, the guide card below
+   re-computes live. Petal colours (white/red/blue/yellow) are the only saturated hues. */
+:root{
+  --bg:#F1F5F2; --surface:#FFFFFF; --sunken:#E8EEEA; --ink:#15211B; --muted:#586861; --line:#D3DCD6;
+  --accent:#1D7A53; --accent-ink:#FFFFFF; --good:#1D7A53; --warn:#A5500A; --bad:#B3261E;
+  --pW:#FFFFFF; --pR:#DD4B3E; --pB:#3B72DE; --pY:#EDB100;
+  --font-head:"Space Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1512; --surface:#17221D; --sunken:#0B110F; --ink:#E6EFE9; --muted:#9BADA3; --line:#2A3A33;
+  --accent:#58D19A; --accent-ink:#052217; --good:#58D19A; --warn:#F2A55E; --bad:#FF8F85;
+  --pW:#F4F7F5; --pR:#F0695D; --pB:#6C9BFF; --pY:#F5C233; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1512; --surface:#17221D; --sunken:#0B110F; --ink:#E6EFE9; --muted:#9BADA3; --line:#2A3A33;
+  --accent:#58D19A; --accent-ink:#052217; --good:#58D19A; --warn:#F2A55E; --bad:#FF8F85;
+  --pW:#F4F7F5; --pR:#F0695D; --pB:#6C9BFF; --pY:#F5C233; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.45;
+  padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1,h2,h3{font-family:var(--font-head);margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:26px;letter-spacing:-.01em}
+h2{font-size:18px;display:flex;align-items:center;gap:10px}
+h3{font-size:15px}
+p{margin:0}
+.sub{color:var(--muted);margin-top:6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:14px;flex:none}
+label,.lbl{font-size:13px;color:var(--muted);font-weight:500}
+select,input[type=number]{font:inherit;color:var(--ink);background:var(--sunken);border:1px solid var(--line);border-radius:10px;min-height:46px;padding:0 12px;width:100%}
+select{appearance:auto}
+input[type=number]{text-align:center;padding:0 4px;-moz-appearance:textfield;font-variant-numeric:tabular-nums}
+input[type=number]::-webkit-inner-spin-button{display:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button{font:inherit;color:inherit;cursor:pointer}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-weight:600}
+.chip[aria-pressed=true]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.chip[disabled]{opacity:.35;cursor:not-allowed}
+.dot{width:16px;height:16px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--ink) 35%,transparent);flex:none}
+.dot.W{background:var(--pW)}.dot.R{background:var(--pR)}.dot.B{background:var(--pB)}.dot.Y{background:var(--pY)}
+.odds{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:center;font-size:13px}
+.odds .bar{height:8px;border-radius:4px;background:var(--sunken);overflow:hidden}
+.odds .bar i{display:block;height:100%;border-radius:4px;border:1px solid color-mix(in srgb,var(--ink) 25%,transparent)}
+.odds .bar i.W{background:var(--pW)}.odds .bar i.R{background:var(--pR)}.odds .bar i.B{background:var(--pB)}.odds .bar i.Y{background:var(--pY)}
+.odds b{font-variant-numeric:tabular-nums;font-weight:600}
+.odds .me{font-weight:700}
+.ctl{display:flex;flex-direction:column;gap:6px}
+.ctl-h{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.ctl-l{font-size:14px;font-weight:500}
+.ctl-v{font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+.ctl-r{display:flex;align-items:center;gap:10px}
+.ctl-s{font-size:12px;color:var(--muted)}
+.step{flex:none;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font-size:22px;line-height:1;display:grid;place-items:center}
+.step:active{background:var(--sunken)}
+input[type=range]{flex:1;min-width:0;height:44px;background:transparent;-webkit-appearance:none;appearance:none;touch-action:pan-y}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:var(--sunken);border:1px solid var(--line)}
+input[type=range]::-moz-range-track{height:8px;border-radius:4px;background:var(--sunken);border:1px solid var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:var(--accent);border:3px solid var(--surface);box-shadow:0 0 0 1.5px var(--accent);margin-top:-12px}
+input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--accent);border:3px solid var(--surface);box-shadow:0 0 0 1.5px var(--accent)}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;min-height:44px;border:0;background:var(--surface);font-weight:600}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
+.readout{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.readout div{background:var(--sunken);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;min-width:0}
+.readout b{font-family:var(--font-head);font-size:20px;font-variant-numeric:tabular-nums}
+.readout span{font-size:12px;color:var(--muted)}
+.stock{display:flex;flex-direction:column;gap:10px}
+.stock h3{margin-top:4px}
+.srow{display:grid;grid-template-columns:1fr;gap:6px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.srow:last-child{border-bottom:0;padding-bottom:0}
+.srow-h{display:flex;align-items:center;gap:8px;font-weight:500}
+.srow-h small{margin-left:auto;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.nst{display:flex;flex-direction:column;gap:2px;min-width:0}
+.nst .row{display:flex;gap:4px;align-items:center}
+.nst .row .step{width:38px;height:44px;border-radius:10px;font-size:20px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-inline:-2px;padding-inline:2px}
+.tab{flex:none;min-height:46px;padding:0 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);font-weight:600;text-align:left}
+.tab[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.guide{background:var(--sunken);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.guide ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;counter-reset:s}
+.guide li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:10px}
+.guide li::before{content:counter(s);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);font-weight:700;font-size:13px}
+.guide li b{font-weight:600}
+.guide li small{display:block;color:var(--muted);font-size:13px}
+.big{font-family:var(--font-head);font-size:19px}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--surface)}
+.ok{color:var(--good)}.no{color:var(--bad)}.wn{color:var(--warn)}
+.checks{display:flex;flex-direction:column;gap:6px;font-size:14px}
+.checks div{display:grid;grid-template-columns:20px 1fr;gap:6px}
+.btn{min-height:46px;padding:0 16px;border-radius:10px;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.alt{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.banner{background:color-mix(in srgb,var(--warn) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--warn) 45%,var(--line));border-radius:10px;padding:10px 12px;font-size:14px}
+.banner.bad{background:color-mix(in srgb,var(--bad) 12%,var(--surface));border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.banner.good{background:color-mix(in srgb,var(--good) 12%,var(--surface));border-color:color-mix(in srgb,var(--good) 45%,var(--line))}
+details{border-top:1px solid var(--line);padding-top:10px}
+summary{cursor:pointer;font-weight:600;min-height:32px;display:flex;align-items:center}
+details>div{display:flex;flex-direction:column;gap:8px;padding-top:6px;font-size:14px}
+ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.muted{color:var(--muted)}
+.tag{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.calib{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+a{color:var(--accent)}
+.jump{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:5;min-height:46px;padding:0 18px;border-radius:999px;border:0;background:var(--ink);color:var(--bg);font-weight:600;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+@media (prefers-reduced-motion:no-preference){.guide{transition:background .2s}}
+</style>
+
+<main class="wrap" id="app">
+  <header>
+    <h1>Big Flower Bloom Planner</h1>
+    <p class="sub">Pick the flower you want. Enter what you have. Get a short list of what to plant.</p>
+  </header>
+
+  <section class="card" aria-labelledby="h-target">
+    <h2 id="h-target"><span class="n">1</span>What do you want to bloom?</h2>
+    <div class="ctl"><label for="species">Species</label><select id="species"></select></div>
+    <div><div class="lbl" style="margin-bottom:6px">Colour</div><div class="chips" id="colors" role="group" aria-label="Colour"></div></div>
+    <div id="oddsBox"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-setup">
+    <h2 id="h-setup"><span class="n">2</span>Your setup</h2>
+    <div class="ctl"><div class="ctl-h"><label for="squad">Squad size</label><span class="ctl-v" id="squadV"></span></div>
+      <div class="ctl-r"><button class="step" data-nudge="squad" data-d="-1" aria-label="Fewer Pikmin">&minus;</button><input type="range" id="squad" min="1" max="40" step="1"><button class="step" data-nudge="squad" data-d="1" aria-label="More Pikmin">+</button></div></div>
+    <div class="ctl"><div class="ctl-h"><label for="speed">Walking speed</label><span class="ctl-v" id="speedV"></span></div>
+      <div class="ctl-r"><button class="step" data-nudge="speed" data-d="-0.5" aria-label="Slower">&minus;</button><input type="range" id="speed" min="2" max="18" step="0.5"><button class="step" data-nudge="speed" data-d="0.5" aria-label="Faster">+</button></div></div>
+    <div class="ctl"><div class="ctl-h"><label for="eff">Planting efficiency</label><span class="ctl-v" id="effV"></span></div>
+      <div class="ctl-r"><button class="step" data-nudge="eff" data-d="-5" aria-label="Lower efficiency">&minus;</button><input type="range" id="eff" min="50" max="100" step="5"><button class="step" data-nudge="eff" data-d="5" aria-label="Higher efficiency">+</button></div>
+      <div class="ctl-s">Allowance for stops, turns and GPS wobble. 100% is a perfectly straight, steady walk.</div></div>
+    <div class="ctl"><div class="lbl">Petals you get per nectar fed</div>
+      <div class="seg" id="ppn" role="group" aria-label="Petals per nectar"><button data-v="1" aria-pressed="true">1 petal</button><button data-v="2" aria-pressed="false">2 petals</button></div>
+      <div class="ctl-s">A Reddit comment says top-budded Pikmin give 2. Unconfirmed, so 1 is the safe setting.</div></div>
+    <div class="readout" id="readout"></div>
+    <details><summary>Calibrate with the game's own estimate</summary><div>
+      <p class="muted">When you pick petals to plant, the game shows how many flowers it expects. Enter that pair here and the planner uses it instead of its own estimate.</p>
+      <div class="calib"><div class="ctl"><label for="calF">Game says (flowers)</label><input type="number" id="calF" inputmode="numeric" min="1"></div>
+      <div class="ctl"><label for="calP">for this many petals</label><input type="number" id="calP" inputmode="numeric" min="1"></div></div>
+      <div class="btn-row"><button class="btn" id="calGo">Use this</button><button class="btn alt" id="calClear">Clear</button></div>
+      <p id="calNote" class="muted"></p></div></details>
+  </section>
+
+  <section class="card" aria-labelledby="h-stock">
+    <h2 id="h-stock"><span class="n">3</span>What you have</h2>
+    <div class="banner" id="exBanner">Example numbers. Replace them with your own stock.</div>
+    <p class="muted">Enter petals in hand and nectar to feed. The planner turns both into how many flowers you can plant.</p>
+    <div class="stock" id="stock"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-plan">
+    <h2 id="h-plan">Your guide</h2>
+    <div id="planBody"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-notes">
+    <h2 id="h-notes">Before you go</h2>
+    <div id="notes"></div>
+  </section>
+  <button class="jump" id="jump" type="button">Guide &darr;</button>
+</main>
+
+<script>
+/*ENGINE-START*/
+const COLORS=['W','R','B','Y'];
+const CNAME={W:'White',R:'Red',B:'Blue',Y:'Yellow'};
+// name,White,Yellow,Red,Blue (percent chance when the colour roll is random; 0 = colour does not exist)
+// Source: Pikipedia "Big Flower", experimental data table.
+const RAW=`Pansy,39.29,14.29,17.86,28.57
+Rose,32,21,37,10
+Poinsettia,22,36,28,14
+Camellia,41.67,16.67,29.17,12.5
+Plum Blossom,39.13,30.43,30.43,0
+Cherry Blossom,100,0,0,0
+Tulip,18,36,22,24
+Carnation,37.54,37.68,28.99,5.8
+Hydrangea,35.59,0,35.59,28.81
+Lily,48.72,15.38,35.9,0
+Sunflower,0,100,0,0
+Spider Lily,20.87,13.91,65.22,0
+Cosmos,33.33,16.67,50,0
+Cyclamen,60,0,30,10
+Daffodil,43.59,56.41,0,0
+Windflower,34.34,22.22,27.27,16.16
+Baby Blue Eyes,0,0,0,100
+Calla Lily,42.55,31.91,17.02,8.51
+Frangipani,25.58,30.23,44.19,0
+Hibiscus,11.56,27.17,50.29,10.98
+Dianthus,42.31,0,46.15,11.54
+Gentian,25.44,0,21.05,53.51
+Chrysanthemum,32.26,40.32,16.13,11.29
+Helleborus,33.33,14.81,46.3,5.56
+Cattleya,38.33,38.33,18.33,5
+Hyacinth,13.33,42.22,24.44,20
+Sweet Pea,17.74,22.58,41.94,17.74
+Lily of the Valley,62.86,0,37.14,0
+Peony,26.8,11.34,51.55,10.31
+Water Lily,17.02,23.4,27.66,31.91
+Morning Glory,22.22,11.11,33.33,33.33
+Bougainvillea,26.26,16.16,43.43,14.14
+Dahlia,25,25,45.83,4.17
+Clematis,35.29,5.88,11.76,47.06
+Snowdrop,42.86,38.1,19.05,0
+Freesia,12.39,42.48,23.01,22.12
+Canola Flower,19.54,67.82,0,12.64
+Anniversary Rose,26.53,20.41,37.76,15.31
+Iris,21.52,26.58,17.72,34.18
+Bird of Paradise,19.64,28.57,51.79,0
+Celosia,13.77,27.54,50,8.7
+Marigold,16.67,41.98,41.36,0
+Salvia,15.79,8.27,56.39,19.55
+Primrose,13.04,37.39,26.09,23.48
+Moth Orchid,54.55,19.7,13.64,12.12
+Snapdragon,21.95,35.77,31.71,10.57
+Petunia,20.74,24.88,25.35,29.03
+Parrot Tulip,18.14,32.3,23.01,26.55
+Forget-Me-Not,25.53,17.73,12.77,43.97
+Bellflower,28.68,0,18.38,52.94
+Orchid Cactus,17.59,30.56,40.74,11.11
+Canna Lily,22.32,29.46,48.21,0
+Prairie Gentian,38.77,15.42,20.26,25.55
+Thistle,18.67,20.67,18.67,42`;
+// The source row for Carnation adds up to 110%, so every row is scaled to 100% (a no-op for the others).
+const SPECIES=RAW.split('\n').map(l=>{const p=l.split(',');const o={W:+p[1],Y:+p[2],R:+p[3],B:+p[4]};
+  const sum=o.W+o.Y+o.R+o.B;for(const c in o)o[c]=o[c]*100/sum;return{name:p[0],odds:o};});
+const speciesByName=n=>SPECIES.find(s=>s.name===n);
+const colorsOf=sp=>COLORS.filter(c=>sp.odds[c]>0);
+const SLOTS=[...COLORS.map(c=>'S:'+c),...COLORS.map(c=>'O:'+c)]; // S = target species, O = any other species
+
+// Squad size -> planting rectangle (cells ~5 m), seconds per petal. Source: Pikipedia "Flower planting" (community-derived).
+const TIERS=[{long:2,short:1,interval:30},{long:3,short:2,interval:20},{long:4,short:3,interval:15},{long:5,short:4,interval:12},{long:6,short:5,interval:10}];
+const CELL_M=5, CIRCLE_CHORD_M=80; // Big Flower circle radius 40 m (Pikipedia)
+
+function plantingModel(squad,speedKmh,eff,fppOv){
+  const t=TIERS[Math.min(4,Math.floor(Math.max(1,squad)/10))];
+  const cells=t.long*t.short, v=speedKmh/3.6;
+  const perSec=v*t.long/CELL_M;                    // new cells covered per second walking across the long side
+  const raw=Math.min(cells,perSec*t.interval);     // flowers one petal's worth of time can plant
+  const fpp=fppOv>0?fppOv:Math.max(1,raw*eff);
+  const scale=fppOv>0?fppOv/Math.max(.01,raw*eff):1;
+  const passFlowers=CIRCLE_CHORD_M*t.long/CELL_M*eff*scale;
+  const petalsPerMin=60/t.interval;
+  return {tier:t,cells,fpp,passFlowers,petalsPerMin,flowersPerMin:fpp*petalsPerMin,calibrated:fppOv>0,tooFast:speedKmh>16};
+}
+function buildCtx(spName,T,inv,fpp,ppn){
+  const sp=speciesByName(spName),colors=colorsOf(sp),cap={};
+  for(const s of SLOTS){
+    const [k,c]=s.split(':'),e=inv[s]||{p:0,n:0};
+    let tot=(+e.p||0)+(+e.n||0)*ppn;
+    if(k==='S'&&!colors.includes(c))tot=0;
+    cap[s]=Math.floor(tot*fpp+1e-9);
+  }
+  return {name:spName,sp,colors,T,single:colors.length===1,cap};
+}
+function tally(alloc){
+  const C={W:0,R:0,B:0,Y:0};let ST=0,total=0;
+  for(const k in alloc){const n=alloc[k]||0;C[k[2]]+=n;total+=n;if(k[0]==='S')ST+=n;}
+  return {C,ST,total};
+}
+// What the in-game tip shows: top non-white colour; every other colour counts as white; 70%+ "white" shows ???.
+function tipOf(C,total){
+  const nw=['R','B','Y'].sort((a,b)=>C[b]-C[a]);
+  if(C[nw[0]]===0)return '?';
+  const eff=total-C[nw[0]];
+  if(eff>=0.7*total)return '?';
+  return C[nw[0]]===C[nw[1]]?'tie':nw[0];
+}
+function check(alloc,ctx){
+  const {C,ST,total}=tally(alloc),T=ctx.T,R=[],add=(ok,text)=>R.push({ok,text});
+  add(total===300,`300 flowers in total (${total})`);
+  add(ST>=156,`At least 156 flowers of ${ctx.name} (${ST})`);
+  if(!ctx.single){
+    const tip=tipOf(C,total);
+    if(T==='W'){
+      const m=Math.max(C.R,C.B,C.Y);
+      add(m<=100,`No single colour above 100 (highest ${m})`);
+      add(tip==='?','The in-game tip should read ???');
+    }else{
+      add(C[T]>=100,`At least 100 ${CNAME[T]} flowers of any species (${C[T]})`);
+      const bad=['R','B','Y'].filter(c=>c!==T&&!(C[c]<=99||C[c]<=C[T]-12));
+      add(bad.length===0,`Other colours stay under 100, or 12 below ${CNAME[T]}`);
+      add(C.W<=199,`White at most 199 (${C.W})`);
+      add(tip===T,`The in-game tip should name ${CNAME[T]}`);
+    }
+  }
+  return R;
+}
+const colorTotal=(a,c)=>Object.keys(a).reduce((s,k)=>k[2]===c?s+a[k]:s,0);
+
+function makePlans(ctx){
+  const {T,name,cap,colors}=ctx,S=c=>'S:'+c,O=c=>'O:'+c,nm=c=>CNAME[c]+' '+name,out=[];
+  const bySlotCap=cs=>[...cs].sort((a,b)=>cap[S(b)]-cap[S(a)]);
+  const fillGreedy=(a,n,pool,lim)=>{
+    let need=n;
+    for(const s of pool){
+      if(need<=0)break;
+      const room=Math.min(cap[s]-(a[s]||0),lim?lim(s,a):Infinity,need);
+      if(room>0){a[s]=(a[s]||0)+room;need-=room;}
+    }
+    return need;
+  };
+  const fillSpread=(a,n,pool,limit)=>{ // add one at a time to the colour with the fewest flowers
+    let need=n;
+    while(need>0){
+      let best=null,bv=Infinity;
+      for(const s of pool){
+        const c=s[2],tot=colorTotal(a,c);
+        if((a[s]||0)<cap[s]&&tot<limit&&tot<bv){best=s;bv=tot;}
+      }
+      if(!best)break;
+      a[best]=(a[best]||0)+1;need--;
+    }
+    return need;
+  };
+  const none=(id,title,reason)=>out.push({id,title,usable:false,reason});
+  const rangeRule=(v,lo,hi,text)=>({ok:v>=lo&&v<=hi,text:`${text} ${lo}-${hi} (${v})`});
+
+  if(ctx.single){
+    if(T!==colors[0])return out;
+    out.push({id:'SV',title:`Plant 156+ ${name}`,
+      why:`${name} only comes in ${CNAME[colors[0]]}, so colour never matters here. The species just has to reach 156 flowers.`,
+      adj:[{key:'a',slot:S(T),label:nm(T)}],
+      init(){const oc=COLORS.reduce((s,c)=>s+cap[O(c)],0);return{a:Math.max(156,300-oc)};},
+      build(v){const al={[S(T)]:v.a};const short=fillGreedy(al,300-v.a,COLORS.map(O));return{alloc:al,short,extra:[]};}});
+    return out;
+  }
+
+  if(T!=='W'){
+    const oth=COLORS.filter(c=>c!==T&&c!=='W');
+    const limN=(s,a)=>{const c=s[2];if(c===T)return Infinity;const C=colorTotal(a,c);return c==='W'?199-C:99-C;};
+    // Branch 1 of the chart: plenty of the exact colour + species.
+    if(cap[S(T)]<156)none('N1',`Plant 156+ ${nm(T)}`,`Needs 156 flowers of ${nm(T)}. Your stock covers about ${cap[S(T)]}.`);
+    else out.push({id:'N1',title:`Plant 156+ ${nm(T)}`,
+      why:`You can plant 156 or more of the exact colour and species, so that alone locks both. Finish with anything you like.`,
+      adj:[{key:'a',slot:S(T),label:nm(T)}],
+      init(){return{a:156};},
+      build(v){const al={[S(T)]:v.a};
+        const short=fillGreedy(al,300-v.a,[O(T),O('W'),S('W'),...oth.map(O),...oth.map(S)],limN);
+        return{alloc:al,short,extra:[{ok:v.a>=156,text:`${nm(T)} at least 156 (${v.a})`}]};}});
+    // Branch 2: some of the colour + species, plus one other colour of the species.
+    const wr=bySlotCap(colors.filter(c=>c!==T&&cap[S(c)]>0)).slice(0,2);
+    if(cap[S(T)]<1||!wr.length)none('N2',`Mix wrong-colour ${name} with ${nm(T)}`,`Needs some ${nm(T)} and at least one other colour of ${name}.`);
+    else out.push({id:'N2',title:`Mix other-colour ${name} with ${nm(T)}`,
+      why:`Plant up to 144 ${name} of the wrong colour first, then enough ${nm(T)} to reach 156 ${name} in total. Finish with ${CNAME[T]} petals of any species.`,
+      adj:wr.map(c=>({key:'w'+c,slot:S(c),label:nm(c)+' (wrong colour)'})),
+      init(){const v={};let left=144;for(const c of wr){const x=Math.min(cap[S(c)],left);v['w'+c]=x;left-=x;}return v;},
+      build(v){const al={};let sw=0;
+        for(const c of wr){al[S(c)]=v['w'+c]||0;sw+=v['w'+c]||0;}
+        const sT=Math.max(156-sw,300-sw-cap[O(T)],0);al[S(T)]=sT;
+        const short=fillGreedy(al,300-sw-sT,[O(T)]);
+        return{alloc:al,short,extra:[{ok:sw<=144,text:`Wrong-colour ${name} at most 144 (${sw})`}]};}});
+    // Branch 3: two other colours of the species, 78-99 each.
+    const pr=bySlotCap(colors.filter(c=>c!==T&&cap[S(c)]>=78)).slice(0,2);
+    if(pr.length<2)none('N3',`Two other colours of ${name}`,`Needs two other colours of ${name}, at least 78 flowers each.`);
+    else out.push({id:'N3',title:`Two other colours of ${name}, 78-99 each`,
+      why:`Plant 78-99 of each of two other colours of ${name} (156-198 in all, enough to lock the species). Finish with ${CNAME[T]} petals of any species.`,
+      adj:pr.map(c=>({key:'x'+c,slot:S(c),label:nm(c)})),
+      init(){const s=Math.min(198,Math.max(156,300-(cap[O(T)]+cap[S(T)])));
+        const cl=(x,c)=>Math.max(78,Math.min(99,x,cap[S(c)]));
+        const x1=cl(Math.ceil(s/2),pr[0]),x2=cl(s-x1,pr[1]);return{['x'+pr[0]]:x1,['x'+pr[1]]:x2};},
+      build(v){const al={};let s=0;for(const c of pr){al[S(c)]=v['x'+c]||0;s+=v['x'+c]||0;}
+        const short=fillGreedy(al,300-s,[O(T),S(T)]);
+        return{alloc:al,short,extra:pr.map(c=>rangeRule(v['x'+c]||0,78,99,nm(c)))};}});
+    // Branch 4: lots of white of the species.
+    if(!colors.includes('W')||cap[S('W')]<156)none('N4',`156-199 white ${name}`,`Needs 156 white ${name}. Your stock covers about ${cap[S('W')]}.`);
+    else out.push({id:'N4',title:`156-199 White ${name}`,
+      why:`White does not count against a colour, so 156-199 white ${name} locks the species without touching ${CNAME[T]}. Finish with ${CNAME[T]} petals of any species.`,
+      adj:[{key:'a',slot:S('W'),label:nm('W')}],
+      init(){return{a:Math.min(199,Math.max(156,300-(cap[O(T)]+cap[S(T)])))};},
+      build(v){const al={[S('W')]:v.a};const short=fillGreedy(al,300-v.a,[O(T),S(T)]);
+        return{alloc:al,short,extra:[rangeRule(v.a,156,199,nm('W'))]};}});
+  }else{
+    const nonw=['R','B','Y'];
+    // Branch 1 (white): 156+ of the white species.
+    if(cap[S('W')]<156)none('W1',`Plant 156+ ${nm('W')}`,`Needs 156 flowers of ${nm('W')}. Your stock covers about ${cap[S('W')]}.`);
+    else out.push({id:'W1',title:`Plant 156+ ${nm('W')}`,
+      why:`This sets the species and aims at a "???" bloom. The colour is then a random roll for ${name}. Keep every other colour at or under 100 so none of them takes over.`,
+      adj:[{key:'a',slot:S('W'),label:nm('W')}],
+      init(){return{a:156};},
+      build(v){const al={[S('W')]:v.a};let rest=300-v.a;
+        rest=fillGreedy(al,rest,[O('W')]);
+        const short=fillSpread(al,rest,[...nonw.map(O),...nonw.map(S)],100);
+        return{alloc:al,short,extra:[{ok:v.a>=156,text:`${nm('W')} at least 156 (${v.a})`}]};}});
+    // Branch 2 (white): 156 of the species in mixed colours, none above 100, then white.
+    const wc=colors.filter(c=>cap[S(c)]>0);
+    if(wc.length<1)none('W2',`Mixed-colour ${name} then white`,`Needs some ${name} petals.`);
+    else out.push({id:'W2',title:`Mixed-colour ${name}, then white`,
+      why:`No white ${name} needed. Plant 156 ${name} in several colours (under 100 of any one), then fill the rest with white petals of any species. Still a random colour roll, so expect several tries.`,
+      adj:wc.map(c=>({key:'c'+c,slot:S(c),label:nm(c)})),
+      init(){const t=Math.max(156,300-cap[O('W')]),v={};wc.forEach(c=>v['c'+c]=0);let sum=0;
+        while(sum<t){let b=null,bv=Infinity;
+          for(const c of wc){const lim=c==='W'?cap[S(c)]:Math.min(cap[S(c)],100);if(v['c'+c]<lim&&v['c'+c]<bv){b=c;bv=v['c'+c];}}
+          if(!b)break;v['c'+b]++;sum++;}
+        return v;},
+      build(v){const al={};let s=0;for(const c of wc){al[S(c)]=v['c'+c]||0;s+=v['c'+c]||0;}
+        const short=fillGreedy(al,300-s,[O('W')]);return{alloc:al,short,extra:[]};}});
+  }
+  return out;
+}
+function evalPlan(p,vals,ctx){
+  const r=p.build(vals);
+  const rules=[...check(r.alloc,ctx),...r.extra];
+  const capOk=Object.keys(r.alloc).every(k=>r.alloc[k]<=ctx.cap[k]);
+  return {alloc:r.alloc,short:r.short,rules,capOk,ok:r.short===0&&capOk&&rules.every(x=>x.ok)};
+}
+function findInit(p,ctx){
+  const good=v=>v&&evalPlan(p,v,ctx).ok;
+  const v0=p.init();if(good(v0))return v0;
+  const ks=p.adj.map(a=>a.key);
+  if(ks.length===1){for(let a=0;a<=300;a++)if(good({[ks[0]]:a}))return{[ks[0]]:a};}
+  else if(ks.length===2){for(let a=0;a<=199;a++)for(let b=0;b<=199;b++)if(good({[ks[0]]:a,[ks[1]]:b}))return{[ks[0]]:a,[ks[1]]:b};}
+  return null;
+}
+function ranges(p,vals,ctx){
+  const out={};
+  for(const a of p.adj){
+    let lo=null,hi=null;
+    for(let v=0;v<=300;v++){if(evalPlan(p,{...vals,[a.key]:v},ctx).ok){if(lo===null)lo=v;hi=v;}}
+    out[a.key]=[lo===null?vals[a.key]:lo,hi===null?vals[a.key]:hi];
+  }
+  return out;
+}
+function whiteTries(p){ // chance per attempt -> tries for 50% and 90%
+  if(!(p>0&&p<1))return {avg:1,t50:1,t90:1};
+  const f=q=>Math.ceil(Math.log(1-q)/Math.log(1-p));
+  return {avg:1/p,t50:f(.5),t90:f(.9)};
+}
+/*ENGINE-END*/
+</script>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const LS='bloomPlanner.v1';
+const DEF={species:'Salvia',T:'W',squad:40,speed:5,eff:85,ppn:1,fppOv:0,example:true,
+  inv:{'S:W':{p:12,n:0},'S:R':{p:10,n:0},'S:B':{p:6,n:0},'S:Y':{p:4,n:0},'O:W':{p:30,n:0},'O:R':{p:30,n:0},'O:B':{p:0,n:0},'O:Y':{p:0,n:0}}};
+const clone=o=>JSON.parse(JSON.stringify(o));
+let st=load();
+function load(){try{const j=JSON.parse(localStorage.getItem(LS));if(j&&j.species&&speciesByName(j.species))return{...clone(DEF),...j,inv:{...clone(DEF.inv),...j.inv}};}catch(e){}return clone(DEF);}
+function save(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){}}
+const rt={planId:null,vals:{},plans:[],ctx:null,M:null};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dot=c=>`<span class="dot ${c}" aria-hidden="true"></span>`;
+const fmt=(x,d=0)=>Number(x).toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:d});
+const slotLabel=s=>{const c=s[2],n=st.species;return s[0]==='S'?`${CNAME[c]} ${n}`:`${CNAME[c]} petals, any other species`;};
+
+/* ---------- step 1: target ---------- */
+function renderTarget(){
+  const sel=$('species');
+  if(!sel.options.length){sel.innerHTML=[...SPECIES].sort((a,b)=>a.name.localeCompare(b.name)).map(s=>`<option>${esc(s.name)}</option>`).join('');}
+  sel.value=st.species;
+  const sp=speciesByName(st.species),cols=colorsOf(sp);
+  if(!cols.includes(st.T))st.T=cols.includes('W')?'W':cols[0];
+  $('colors').innerHTML=COLORS.map(c=>`<button class="chip" data-color="${c}" aria-pressed="${c===st.T}" ${cols.includes(c)?'':'disabled'}>${dot(c)}${CNAME[c]}</button>`).join('');
+  const rows=[...cols].sort((a,b)=>sp.odds[b]-sp.odds[a]);
+  $('oddsBox').innerHTML=`<div class="lbl" style="margin-bottom:6px">Colour roll for ${esc(sp.name)} when no colour wins outright</div><div class="odds">`+
+    rows.map(c=>`<span class="${c===st.T?'me':''}">${CNAME[c]}</span><span class="bar"><i class="${c}" style="width:${sp.odds[c]}%"></i></span><b class="${c===st.T?'me':''}">${fmt(sp.odds[c],1)}%</b>`).join('')+`</div>`+
+    (cols.length===1?`<p class="muted" style="margin-top:8px">${esc(sp.name)} only comes in ${CNAME[cols[0]]}.</p>`:'');
+}
+
+/* ---------- step 2: setup ---------- */
+function renderSetup(){
+  $('squad').value=st.squad;$('squadV').textContent=st.squad+' Pikmin';
+  $('speed').value=st.speed;$('speedV').textContent=fmt(st.speed,1)+' km/h'+(st.speed>16?' (too fast)':'');
+  $('eff').value=st.eff;$('effV').textContent=st.eff+'%';
+  document.querySelectorAll('#ppn button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===st.ppn)));
+  const M=rt.M;
+  $('readout').innerHTML=`<div><b>${fmt(M.fpp,1)}</b><span>flowers per petal</span></div><div><b>${fmt(M.passFlowers)}</b><span>flowers per 80 m pass</span></div><div><b>${fmt(M.petalsPerMin,1)}/min</b><span>petals drain at this squad</span></div>`;
+  $('calNote').textContent=st.fppOv>0?`Using your calibration: ${fmt(st.fppOv,2)} flowers per petal.`:'Using the planner’s own estimate.';
+}
+
+/* ---------- step 3: stock ---------- */
+function renderStock(){
+  const sp=speciesByName(st.species),cols=colorsOf(sp);
+  const row=s=>{const e=st.inv[s]||{p:0,n:0};
+    return `<div class="srow" data-slot="${s}"><div class="srow-h">${dot(s[2])}${esc(slotLabel(s))}<small id="cap-${s[0]}${s[2]}"></small></div>
+    <div class="pair">${['p','n'].map(f=>`<div class="nst"><label for="in-${s[0]}${s[2]}${f}">${f==='p'?'Petals':'Nectar'}</label><div class="row">
+      <button class="step" data-slot="${s}" data-f="${f}" data-d="-1" aria-label="Fewer ${f==='p'?'petals':'nectar'}">&minus;</button>
+      <input type="number" id="in-${s[0]}${s[2]}${f}" data-slot="${s}" data-f="${f}" inputmode="numeric" min="0" value="${e[f]||0}">
+      <button class="step" data-slot="${s}" data-f="${f}" data-d="1" aria-label="More ${f==='p'?'petals':'nectar'}">+</button></div></div>`).join('')}</div></div>`;};
+  $('stock').innerHTML=`<h3>${esc(sp.name)}</h3>`+cols.map(c=>row('S:'+c)).join('')+`<h3>Any other species</h3>`+COLORS.map(c=>row('O:'+c)).join('');
+  $('exBanner').hidden=!st.example;
+  patchCaps();
+}
+function patchCaps(){
+  if(!rt.ctx)return;
+  for(const s of SLOTS){const el=$('cap-'+s[0]+s[2]);if(el)el.textContent='≈ '+fmt(rt.ctx.cap[s])+' flowers';}
+}
+
+/* ---------- compute ---------- */
+function recompute(){
+  rt.M=plantingModel(st.squad,st.speed,st.eff/100,st.fppOv);
+  rt.ctx=buildCtx(st.species,st.T,st.inv,rt.M.fpp,st.ppn);
+  const plans=makePlans(rt.ctx);
+  for(const p of plans){
+    if(!p.usable&&p.usable!==undefined)continue;
+    const key=p.id,cur=rt.vals[key];
+    if(cur&&p.adj.every(a=>a.key in cur)&&evalPlan(p,cur,rt.ctx).ok){p.vals=cur;}
+    else{const v=findInit(p,rt.ctx);if(v){p.vals=v;rt.vals[key]=v;}else{p.usable=false;p.reason=`Your stock cannot satisfy this branch. You are probably short on petals of the colours it needs.`;}}
+    if(p.usable===undefined)p.usable=true;
+  }
+  rt.plans=plans;
+  const good=plans.filter(p=>p.usable);
+  if(!good.find(p=>p.id===rt.planId))rt.planId=good.length?good[0].id:null;
+  save();
+  renderSetup();patchCaps();renderPlan(true);
+}
+
+/* ---------- guide ---------- */
+const cur=()=>rt.plans.find(p=>p.id===rt.planId);
+function renderPlan(shell){
+  const body=$('planBody'),good=rt.plans.filter(p=>p.usable),ctx=rt.ctx;
+  if(ctx.single&&st.T!==ctx.colors[0]){body.innerHTML=`<div class="banner bad">${esc(st.species)} only comes in ${CNAME[ctx.colors[0]]}. Pick that colour.</div>`;return;}
+  if(!good.length){
+    body.innerHTML=`<div class="banner bad"><b>No guaranteed way with this stock.</b><br>The chart has no branch that works. More petals can come from mushrooms, blooming Big Flowers with regular nectar, events and weekly challenges.</div>`+
+      reasons();return;
+  }
+  if(shell){
+    const p=cur(),letters='ABCDEF';
+    body.innerHTML=`<div class="tabs" id="tabs" role="group" aria-label="Plans">${good.map((q,i)=>`<button class="tab" data-plan="${q.id}" aria-pressed="${q.id===p.id}"><span class="tag">Plan ${letters[i]}</span><br>${esc(q.title)}</button>`).join('')}</div>
+      <p class="muted" id="why"></p><div class="guide" id="guide"></div>
+      <div class="btn-row"><button class="btn alt" id="copy">Copy guide</button><button class="btn alt" id="reset">Reset suggestion</button></div>
+      <h3>Fine-tune</h3><p class="muted">Drag to shift flowers between steps. The other steps and the limits update to keep the bloom valid.</p>
+      <div id="ctls">${p.adj.map(a=>`<div class="ctl" data-key="${a.key}"><div class="ctl-h"><label for="r-${a.key}" class="ctl-l">${dot(a.slot[2])} ${esc(a.label)}</label><span class="ctl-v" id="v-${a.key}"></span></div>
+        <div class="ctl-r"><button class="step" data-key="${a.key}" data-d="-1" aria-label="One fewer">&minus;</button><input type="range" id="r-${a.key}" data-key="${a.key}" min="0" max="300" step="1"><button class="step" data-key="${a.key}" data-d="1" aria-label="One more">+</button></div>
+        <div class="ctl-s" id="s-${a.key}"></div></div>`).join('')}</div>
+      <h3>Checks</h3><div class="checks" id="checks"></div>
+      <div id="more"></div>${reasons()}`;
+  }
+  refreshPlan();
+}
+function reasons(){
+  const bad=rt.plans.filter(p=>!p.usable);
+  if(!bad.length)return '';
+  return `<details><summary>Why not the other branches</summary><div><ul class="tight">${bad.map(p=>`<li><b>${esc(p.title)}</b><br>${esc(p.reason||'')}</li>`).join('')}</ul></div></details>`;
+}
+function stepsFor(p,ev){
+  const M=rt.M,steps=[];
+  for(const k of Object.keys(ev.alloc)){
+    const n=ev.alloc[k];if(!n)continue;
+    const petals=Math.max(1,Math.ceil(n/M.fpp)),have=+(st.inv[k]?.p)||0,feed=Math.max(0,petals-have),nectar=Math.ceil(feed/st.ppn);
+    steps.push({slot:k,n,petals,nectar,short:feed>0&&nectar*st.ppn<feed});
+  }
+  return steps;
+}
+function refreshPlan(){
+  const p=cur();if(!p)return;
+  const ctx=rt.ctx,M=rt.M,vals=p.vals=rt.vals[p.id],ev=evalPlan(p,vals,ctx),rg=ranges(p,vals,ctx);
+  $('why').textContent=p.why;
+  for(const a of p.adj){
+    const r=$('r-'+a.key);r.min=rg[a.key][0];r.max=rg[a.key][1];r.value=vals[a.key];
+    $('v-'+a.key).textContent=`${vals[a.key]} flowers`;
+    $('s-'+a.key).textContent=`${Math.max(1,Math.ceil(vals[a.key]/M.fpp))} petals. Allowed ${rg[a.key][0]} to ${rg[a.key][1]} right now.`;
+  }
+  const steps=stepsFor(p,ev),letters=steps.length;
+  const feedList=steps.filter(s=>s.nectar>0);
+  const totalPetals=steps.reduce((s,x)=>s+x.petals,0);
+  const mins=300/M.flowersPerMin,passes=Math.ceil(300/M.passFlowers);
+  let html=`<div class="tag">Find a Big Flower that still needs 300 flowers. Plant only inside its circle.</div>`;
+  if(feedList.length)html+=`<div><b>Feed first:</b> ${feedList.map(s=>`${s.nectar} ${esc(slotLabel(s.slot))} nectar`).join(', ')}</div>`;
+  html+=`<ol>`+steps.map(s=>`<li><div><b class="big">${s.n}</b> ${dot(s.slot[2])}<b>${esc(slotLabel(s.slot))}</b><small>Select ${s.petals} petal${s.petals===1?'':'s'}. The game should estimate about ${fmt(s.petals*M.fpp)} flowers.</small></div></li>`).join('')+`</ol>`;
+  const C=tally(ev.alloc).C,tip=tipOf(C,300);
+  const tipTxt=tip==='?'?`??? ${st.species}`:tip==='tie'?'unclear':`${CNAME[tip]} ${st.species}`;
+  html+=`<div>After step ${steps.length}, tap the flower. The tip should predict <b>${esc(tipTxt)}</b>${st.T==='W'||ctx.single?'.':`. If it shows ??? instead, a seasonal flower in the Big Flower Forecast may have no ${CNAME[st.T]} variant. That alone is not a problem.`}</div>`;
+  html+=`<div class="muted">About ${totalPetals} petals, ${passes} passes of an 80 m line (${fmt(mins,0)} min walking). Same ground needs a 5 minute gap, so use a different line for each pass.</div>`;
+  $('guide').innerHTML=html;
+  $('checks').innerHTML=ev.rules.map(r=>`<div><span class="${r.ok?'ok':'no'}" aria-hidden="true">${r.ok?'✓':'✗'}</span><span>${esc(r.text)}</span></div>`).join('');
+  // odds + risk
+  const sp=ctx.sp;let more='';
+  if(!ctx.single){
+    if(st.T==='W'){
+      const w=whiteTries(sp.odds.W/100);
+      more=`<div class="banner">White is never guaranteed. Each try is a roll at <b>${fmt(sp.odds.W,1)}%</b> for ${esc(sp.name)}: about ${fmt(w.avg,1)} tries on average, half the time within ${w.t50}, 9 times in 10 within ${w.t90}. Each try is a full 300 flowers.</div>`;
+    }else{
+      more=`<div class="banner good">Colour is decided by your plan, so this should work about 95-97% of the time. The rest is a small chance of mutating into a different seasonal flower.</div>`;
+    }
+  }
+  if(M.tooFast)more+=`<div class="banner bad">Above about 16 km/h the game may plant nothing. Slow down.</div>`;
+  $('more').innerHTML=more;
+  p.lastEv=ev;p.lastSteps=steps;
+}
+
+/* ---------- notes ---------- */
+function renderNotes(){
+  $('notes').innerHTML=`<div class="checks" style="gap:10px">
+  <details open><summary>Read this first</summary><div><ul class="tight">
+    <li>The chart’s numbers (156, 144, 78-99, 199) count <b>flowers planted</b>, not petals. One petal plants many flowers, so you need far fewer petals than the totals suggest.</li>
+    <li>The petals-to-flowers rate is a model built from community measurements. Use the calibration box in step 2 with the game’s own estimate for the best accuracy.</li>
+    <li>Plants only count inside the circle. Watch the Big Flower’s progress as you go.</li>
+  </ul></div></details>
+  <details><summary>Risks the chart does not cover</summary><div><ul class="tight">
+    <li><b>Mutation:</b> about 3% (Pikipedia) to 5% (Reddit) of blooms become another seasonal flower. Events can raise this.</li>
+    <li><b>Community Day:</b> every Big Flower bloomed with regular nectar becomes the flower of the month. Do not plan a bloom then.</li>
+    <li><b>Cherry Blossom in the Forecast:</b> the tip shows ??? for every plan, because Cherry Blossom is white only. The plan can still be fine.</li>
+    <li><b>White:</b> no plan can force white on a species with several colours.</li>
+    <li><b>Instant bloom:</b> 150 petals of one species blooms a Big Flower at once, but the colour is random and it burns far more petals than planting.</li>
+  </ul></div></details>
+  <details><summary>Where the rules come from</summary><div><ul class="tight">
+    <li>Branches and 156 / 144 / 78-99 / 199 numbers: the Big Flower blooming flowchart on Pikipedia, checked against the Pikipedia Big Flower page and the Reddit flower spawning thread.</li>
+    <li>White counts as a colour in the 78-99 branch (Pikipedia). The in-game tip logic is also from Pikipedia.</li>
+    <li>Colour odds: Pikipedia’s experimental table.</li>
+    <li>Planting model: Pikipedia “Flower planting” (community data: 5 m cells, rectangle by squad size, seconds per petal) plus the 5 minute cooldown. Straight-pass counts agree with Reddit reports of about 100 flowers per pass at 40 Pikmin.</li>
+    <li>Not confirmed: petals per nectar (1 or 2), the exact planting rate for your speed, and the 12-flower safety margin this planner adds.</li>
+    <li>One PurePots page says colour cannot be forced. That conflicts with the chart, Pikipedia and Reddit, so it is not used here.</li>
+  </ul></div></details></div>`;
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.color){st.T=t.dataset.color;rt.planId=null;rt.vals={};renderTarget();recompute();return;}
+  if(t.dataset.nudge){const k=t.dataset.nudge,r=$(k),v=Math.min(+r.max,Math.max(+r.min,(+st[k])+ +t.dataset.d));st[k]=v;recompute();return;}
+  if(t.closest('#ppn')){st.ppn=+t.dataset.v;recompute();return;}
+  if(t.classList.contains('step')&&t.dataset.slot){const f=t.dataset.f,s=t.dataset.slot,e2=st.inv[s]||(st.inv[s]={p:0,n:0});
+    e2[f]=Math.max(0,(+e2[f]||0)+ +t.dataset.d);$('in-'+s[0]+s[2]+f).value=e2[f];st.example=false;$('exBanner').hidden=true;recompute();return;}
+  if(t.dataset.plan){rt.planId=t.dataset.plan;renderPlan(true);return;}
+  if(t.classList.contains('step')&&t.dataset.key){const p=cur(),k=t.dataset.key,r=$('r-'+k),v=Math.min(+r.max,Math.max(+r.min,rt.vals[p.id][k]+ +t.dataset.d));rt.vals[p.id]={...rt.vals[p.id],[k]:v};refreshPlan();return;}
+  if(t.id==='reset'){const p=cur();delete rt.vals[p.id];recompute();return;}
+  if(t.id==='copy'){copyGuide();return;}
+  if(t.id==='jump'){$('h-plan').scrollIntoView({behavior:'smooth',block:'start'});return;}
+  if(t.id==='calGo'){const f=+$('calF').value,pp=+$('calP').value;if(f>0&&pp>0){st.fppOv=f/pp;recompute();}return;}
+  if(t.id==='calClear'){st.fppOv=0;$('calF').value='';$('calP').value='';recompute();return;}
+});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.id==='species'){st.species=t.value;rt.planId=null;rt.vals={};renderTarget();renderStock();recompute();return;}
+  if(t.id==='squad'||t.id==='speed'||t.id==='eff'){st[t.id]=+t.value;recompute();return;}
+  if(t.matches('input[type=number][data-slot]')){const s=t.dataset.slot,f=t.dataset.f;(st.inv[s]||(st.inv[s]={p:0,n:0}))[f]=Math.max(0,Math.floor(+t.value)||0);st.example=false;$('exBanner').hidden=true;recompute();return;}
+  if(t.matches('input[type=range][data-key]')){const p=cur();rt.vals[p.id]={...rt.vals[p.id],[t.dataset.key]:+t.value};refreshPlan();return;}
+});
+function copyGuide(){
+  const p=cur();if(!p||!p.lastSteps)return;
+  const lines=[`${CNAME[st.T]} ${st.species} (${p.title})`,'Find a Big Flower needing 300 flowers; plant inside its circle.'];
+  const feed=p.lastSteps.filter(s=>s.nectar>0).map(s=>`${s.nectar} ${slotLabel(s.slot)} nectar`);
+  if(feed.length)lines.push('Feed first: '+feed.join(', '));
+  p.lastSteps.forEach((s,i)=>lines.push(`${i+1}. ${s.n} ${slotLabel(s.slot)} (select ${s.petals} petals)`));
+  const text=lines.join('\n'),b=$('copy');
+  const done=()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy guide',1500);};
+  try{navigator.clipboard.writeText(text).then(done,()=>{b.textContent='Copy not allowed';});}catch(e){b.textContent='Copy not allowed';}
+}
+
+/* ---------- boot ---------- */
+renderTarget();renderStock();renderNotes();recompute();
+})();
+</script>
