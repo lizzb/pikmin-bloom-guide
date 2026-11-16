@@ -6,9 +6,8 @@ Personal notes and guides for Pikmin Bloom, kept as plain Markdown.
 
 ## Contents
 
-- [Storage management](guide/storage.md) — what to keep and release with the 300-Pikmin cap, no real money
-
-- [Handbook skeleton](guide/handbook-skeleton.md) — restructure of overview.md with confidence tags (✅ confirmed / 🟡 probable / ❓ unconfirmed / 🕰️ outdated)
+- [Handbook skeleton](guide/handbook-skeleton.md) — restructure of overview.md with confidence tags (✅ confirmed / 🟡 probable / ❓ unconfirmed / 🕰️ outdated); §1 covers storage and what to release
+- [Raw notes](guide/overview.md) — the working notes the handbook is drawn from
 
 ## Big Flower bloom planner
 

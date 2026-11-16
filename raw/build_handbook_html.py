@@ -18,6 +18,7 @@ SOURCES = {
     "H": "Official Help Center / news",
     "W": "Pikipedia wiki",
     "R": "Reddit notes in overview.md",
+    "S": "Other web guides (community forum, bnext, nownews)",
     "L": "lizz's own testing",
     "C": "Calculated here",
 }

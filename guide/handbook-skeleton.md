@@ -1,6 +1,6 @@
 # Pikmin Bloom Handbook (skeleton, v0)
 
-Restructure of [overview.md](overview.md). Drafted 2026-11-01. Facts are tagged so you can skim past them and still know how far to trust them.
+Restructure of [overview.md](https://github.com/lizzb/pikmin-bloom-guide/blob/main/guide/overview.md). Drafted 2026-11-01. Facts are tagged so you can skim past them and still know how far to trust them.
 
 **Legend** (tags sit at the end of a line)
 
@@ -11,7 +11,7 @@ Restructure of [overview.md](overview.md). Drafted 2026-11-01. Facts are tagged 
 | ❓ | Unconfirmed, conflicting, or opinion |
 | 🕰️ | Possibly outdated (2021-2024 sources) |
 
-Source letters: **D** Discord #faq (verbatim copy kept locally, not published) · **H** official Help Center/news · **W** Pikipedia wiki · **R** Reddit notes pasted into overview.md · **L** lizz's own testing · **C** calculated here from the cited numbers.
+Source letters: **D** Discord #faq · **H** official Help Center/news · **W** Pikipedia wiki · **R** Reddit notes pasted into overview.md · **L** lizz's own testing · **S** other web guides (community forum tips, bnext, nownews; carried over from the old storage guide) · **C** calculated here from the cited numbers.
 
 Trust order when sources disagree: D > H > W > R, and newer beats older. `🚧 migrate` lines mark content still sitting in overview.md.
 
@@ -34,7 +34,7 @@ Trust order when sources disagree: D > H > W > R, and newer beats older. `🚧 m
 ## 1. Pikmin storage and releasing (300 cap, free-to-play)
 
 - **Limit:** starts at 300. ✅H Shop upgrades raise it to 4,500 max. 🟡H (older announcements quoted 3,000 / 3,200 / 4,000 caps, so check the in-app number.) ❓
-- **No free way to expand** is documented. ✅H
+- **No free way to expand** is documented. ✅H ([Help Center: storage size of each item](https://niantic.helpshift.com/hc/en/23-pikmin-bloom/faq/3040-storage-size-of-each-item/))
 - **Sorting:** Discovery Date, Favorite, Type, Friendship, Decor Category. 🟡R Search box (magnifier) takes terms like `bloom` or a heart range. ✅D
 - Spend coins on storage first; extra room lets you keep full single-colour squads for elemental mushrooms. ✅D
 
@@ -45,7 +45,12 @@ Every rule uses something you can see on screen.
 3. **Lowest friendship first:** sort by Friendship Level, ascending, and release from the bottom. Skip rare-eligible categories (§3) and any Pikmin you're raising to 4 hearts. 🟡C
 4. **No decor and under 4 hearts** in a non-rare category. 🟡C
 
+The old storage guide's order was: weak, plain or duplicate regular Pikmin; then duplicate and common roadside decor; then, once you keep one of each current-month seasonal decor until the month ends, the most common seasonal types, never the rare-eligible ones. 🟡S It fits the list above.
+
 ### What to keep
+- **Favourites:** new decor, lifelog memories and special-location decor. 🟡S
+- **Hard-to-find decor** (restaurants, bakeries, waterfronts). 🟡S
+- A few duplicates of the same decor are fine if you have room. 🟡S
 - Anything in a **rare-decor category** until you've unlocked rare decor, because releasing earns points. ✅D (see §3)
 - Your mushroom squad: highest hearts, and Purple first (best base attack). The squad cap is 40, and elemental mushrooms take one colour only, so keep full single-colour sets. ✅D
 
@@ -53,11 +58,14 @@ Every rule uses something you can see on screen.
 - **Mostly no need to keep it for the collection.** Once a decor is filled in on the Decor Pikmin list, it stays filled even if released. ✅D
 - Reasons to keep one: you want the attack boost for that month's event mushrooms, or it sits in a rare-eligible category. ❓
 - Don't count on reruns. Event Pikmin may not return, though some community members expect reruns. ❓R
+- Event Pikmin may be useful at a later event, and duplicates of decor unlikely to return are the safest to release. 🟡S
+- Leftover seasonal nectar and petals: save them for next year (§6). 🟡R
 - Older advice in this repo said "keep one of each"; the dex-persistence fact above makes that weaker. Keep one only if slots are spare.
 
 ### What you get for releasing
 - **10 basic petals** ✅L ✅W, in the colour of the nectar the Pikmin was fed most recently; white if it never got nectar. 🟡W This matches lizz's observation: a Pikmin fed red hibiscus gives plain red petals, not red hibiscus.
 - Rare-decor points: 5 without decor, 20 with decor. ✅D
+- An older guide said feeding rarer nectar before releasing returns better petals. The wiki and lizz's test say a release gives 10 plain petals in the colour of the latest nectar, so don't rely on it. ❓S
 
 ### Keeping one of every Pikmin?
 - You don't need to, for the collection: the decor list stays filled after release. ✅D
@@ -68,6 +76,7 @@ Every rule uses something you can see on screen.
 - **Rules that apply:** 300 slots by default; one per colour + decor; you can't obtain an expired event set again unless it re-runs (e.g. Afternoon Tea in March 2026). ✅H
 
 ### Decor-tracking tips
+- Rename Pikmin you plan to release (for example "release") to put off the decision. 🟡S
 - Name the first Pikmin of each decor so you know which to keep. ✅D (nickname by pluck order, since Date Plucked isn't shown)
 - Sort by Decor Category on both the Pikmin and Seedling screens. Order is: decor type, then Red - Yellow - Blue - Purple - White - Pink - Gray - Ice - Huge, then date. ✅D
 - Icon behind a Pikmin: **yellow** = you already own that colour + decor, **gray** = not yet. ✅D A yellow-icon seedling can't add a new dex entry. 🟡C
@@ -460,3 +469,11 @@ A cell refills every 5 minutes, so you plant one footprint per 5 minutes however
 
 ## Provenance
 Discord #faq copied 2026-11-01. Reddit threads referenced in overview.md could not be fetched, so R-tagged items come only from the notes already pasted there.
+
+§1 absorbs the former storage guide (researched 2026-11-01). Its sources:
+
+- [Pikmin Bloom Help Center: storage size of each item](https://niantic.helpshift.com/hc/en/23-pikmin-bloom/faq/3040-storage-size-of-each-item/) (H)
+- [Community forum: tips for new players](https://community.pikminbloom.com/t/a-few-tips-for-new-players-that-are-getting-started-on-pikmin-bloom/1005) (S)
+- [Pikmin Wiki](https://pikminwiki.com/Pikmin_Bloom) (W)
+- [bnext storage guide](https://www.bnext.com.tw/article/91713/pikmin-bloom-storage-release-guide) (S)
+- [nownews](https://www.nownews.com/news/6862832) (S)
