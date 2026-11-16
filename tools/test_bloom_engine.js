@@ -3,7 +3,7 @@
 const fs = require('fs'), path = require('path');
 const html = fs.readFileSync(path.join(__dirname, 'bloom-planner.html'), 'utf8');
 const src = html.split('/*ENGINE-START*/')[1].split('/*ENGINE-END*/')[0];
-const E = new Function(src + '; return {SPECIES,speciesByName,colorsOf,plantingModel,buildCtx,makePlans,evalPlan,findInit,ranges,tally,tipOf,check,whiteTries,SLOTS,COLORS};')();
+const E = new Function(src + '; return {SPECIES,speciesByName,colorsOf,plantingModel,buildCtx,makePlans,evalPlan,findInit,ranges,tally,tipOf,check,whiteTries,SLOTS,COLORS,tierRows,pickTier,fmtSecs,tierRange,iconUrl,CIRCLE_CELLS,KMH_PER_MPH,FT_PER_M};')();
 
 let pass = 0, fail = 0;
 const t = (name, ok, extra) => { if (ok) pass++; else { fail++; console.log('FAIL', name, extra ?? ''); } };
@@ -107,6 +107,41 @@ const M = E.plantingModel(40, 5, 1, 0);
 t('40 Pikmin pass ~96', Math.abs(M.passFlowers - 96) < 1, M.passFlowers);
 const M2 = E.plantingModel(40, 5, 0.85, 0);
 t('fpp sane', M2.fpp > 10 && M2.fpp < 20, M2.fpp);
+
+
+// --- Squad tiers: the top row must agree with the planting model, and the pick must not cost extra petals
+for (const [sq, kmh, eff] of [[40, 5, .85], [25, 3, 1], [12, 8, .7], [5, 5, 1], [40, 2, .9]]) {
+  const Mx = E.plantingModel(sq, kmh, eff, 0);
+  const rows = E.tierRows(100, kmh, eff, sq, 0);
+  t(`top tier fpp matches model (sq ${sq}, ${kmh} km/h)`, Math.abs(rows[rows.length - 1].fpp - Mx.fpp) < 1e-9, [rows[rows.length - 1].fpp, Mx.fpp]);
+  t('rows count = tier + 1', rows.length === Math.min(4, Math.floor(sq / 10)) + 1);
+  for (const n of [1, 12, 78, 99, 144, 156, 199, 300]) {
+    const rs = E.tierRows(n, kmh, eff, sq, 0), b = E.pickTier(rs, n);
+    t(`pick uses the fewest petals (n ${n})`, b.petals === Math.min(...rs.map(r => r.petals)));
+    t('petals cover n', b.expected >= n - 1e-6);
+  }
+}
+{ // calibration: a game estimate of 14 flowers per petal is honoured by the top tier
+  const rows = E.tierRows(140, 5, .85, 40, 14);
+  t('calibrated fpp', Math.abs(rows[rows.length - 1].fpp - 14) < 1e-9 && rows[rows.length - 1].petals === 10);
+}
+{ // slow walking: every squad plants the same per petal, so the biggest squad is the fastest
+  const rows = E.tierRows(120, 2, 1, 40, 0), b = E.pickTier(rows, 120);
+  t('slow walk picks top tier', b.i === 4, b);
+}
+t('fmtSecs', E.fmtSecs(45) === '45 s' && E.fmtSecs(60) === '1 min' && E.fmtSecs(130) === '2 min 10 s');
+t('tierRange', E.tierRange(0) === '1-9' && E.tierRange(3) === '30-39' && E.tierRange(4) === '40');
+t('circle cells ~200', E.CIRCLE_CELLS === 201);
+t('unit constants', Math.abs(5 / E.KMH_PER_MPH - 3.107) < .01 && Math.abs(80 * E.FT_PER_M - 262.5) < .1);
+
+// --- Wiki images: every colour of every species has a petal and a nectar icon URL
+for (const s of E.SPECIES) for (const c of E.colorsOf(s)) for (const k of ['petals', 'nectar']) {
+  const u = E.iconUrl(k, s.name, c);
+  t(`icon ${k} ${s.name} ${c}`, /^https:\/\/pikmin\.wiki\.gallery\/images\/thumb\/[0-9a-f]\/[0-9a-f]{2}\/[A-Za-z_\-]+_(petals|nectar)_icon\.png\/75px-/.test(u), u);
+}
+t('generic petal icons', ['W', 'R', 'B', 'Y'].every(c => E.iconUrl('petals', null, c)));
+t('generic nectar icons (no white)', ['R', 'B', 'Y'].every(c => E.iconUrl('nectar', null, c)) && E.iconUrl('nectar', null, 'W') === '');
+t('alias: Chrysanthemum uses the mum files', /Red_mum_petals_icon/.test(E.iconUrl('petals', 'Chrysanthemum', 'R')));
 
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

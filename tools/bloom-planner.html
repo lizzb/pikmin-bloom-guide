@@ -45,7 +45,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .chip{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-weight:600}
 .chip[aria-pressed=true]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
 .chip[disabled]{opacity:.35;cursor:not-allowed}
-.dot{width:16px;height:16px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--ink) 35%,transparent);flex:none}
+.dot{display:inline-block;vertical-align:middle;width:16px;height:16px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--ink) 35%,transparent);flex:none}
 .dot.W{background:var(--pW)}.dot.R{background:var(--pR)}.dot.B{background:var(--pB)}.dot.Y{background:var(--pY)}
 .odds{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:center;font-size:13px}
 .odds .bar{height:8px;border-radius:4px;background:var(--sunken);overflow:hidden}
@@ -88,15 +88,18 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 .tab[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .guide{background:var(--sunken);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px}
 .guide ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;counter-reset:s}
-.guide li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:10px}
-.guide li::before{content:counter(s);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);font-weight:700;font-size:13px}
-.guide li b{font-weight:600}
-.guide li small{display:block;color:var(--muted);font-size:13px}
+.guide ol>li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:10px}
+.guide ol>li::before{content:counter(s);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);font-weight:700;font-size:13px}
+.guide ol>li b{font-weight:600}
+.guide ol>li small{display:block;color:var(--muted);font-size:13px}
 .big{font-family:var(--font-head);font-size:19px}
 .pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--surface)}
 .ok{color:var(--good)}.no{color:var(--bad)}.wn{color:var(--warn)}
 .checks{display:flex;flex-direction:column;gap:6px;font-size:14px}
-.checks div{display:grid;grid-template-columns:20px 1fr;gap:6px}
+.checks>div{display:grid;grid-template-columns:20px 1fr;gap:6px}
+.notes{display:flex;flex-direction:column;gap:12px}
+.notes details>div{padding-top:8px}
+.notes ul.tight{padding-left:20px}
 .btn{min-height:46px;padding:0 16px;border-radius:10px;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:600}
 .btn.alt{background:transparent;color:var(--ink);border-color:var(--line)}
 .btn-row{display:flex;gap:8px;flex-wrap:wrap}
@@ -112,6 +115,22 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
 .calib{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 a{color:var(--accent)}
 .jump{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:5;min-height:46px;padding:0 18px;border-radius:999px;border:0;background:var(--ink);color:var(--bg);font-weight:600;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.ico{width:28px;height:28px;object-fit:contain;flex:none}
+.ico.x{display:none}
+.lbl-ico{display:flex;align-items:center;gap:6px;min-height:28px}
+.seg button{line-height:1.2;padding:6px 8px}
+.guide details{border-top:0;padding-top:4px}
+.guide details>div{padding-top:6px}
+.guide ol>li .ico{vertical-align:middle;margin-right:2px}
+.how>summary{color:var(--accent);min-height:36px}
+.how p{margin:0}
+.tblw{overflow-x:auto}
+.tbl{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl th{font-weight:600;color:var(--muted)}
+.tbl tr.best td{font-weight:600;background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.feed{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
+.feed span{display:inline-flex;align-items:center;gap:4px}
 @media (prefers-reduced-motion:no-preference){.guide{transition:background .2s}}
 </style>
 
@@ -130,6 +149,8 @@ a{color:var(--accent)}
 
   <section class="card" aria-labelledby="h-setup">
     <h2 id="h-setup"><span class="n">2</span>Your setup</h2>
+    <div class="ctl"><div class="lbl">Units</div>
+      <div class="seg" id="units" role="group" aria-label="Units"><button data-v="metric" aria-pressed="true">Metric (km/h, m)</button><button data-v="imperial" aria-pressed="false">Imperial (mph, ft)</button></div></div>
     <div class="ctl"><div class="ctl-h"><label for="squad">Squad size</label><span class="ctl-v" id="squadV"></span></div>
       <div class="ctl-r"><button class="step" data-nudge="squad" data-d="-1" aria-label="Fewer Pikmin">&minus;</button><input type="range" id="squad" min="1" max="40" step="1"><button class="step" data-nudge="squad" data-d="1" aria-label="More Pikmin">+</button></div></div>
     <div class="ctl"><div class="ctl-h"><label for="speed">Walking speed</label><span class="ctl-v" id="speedV"></span></div>
@@ -137,9 +158,9 @@ a{color:var(--accent)}
     <div class="ctl"><div class="ctl-h"><label for="eff">Planting efficiency</label><span class="ctl-v" id="effV"></span></div>
       <div class="ctl-r"><button class="step" data-nudge="eff" data-d="-5" aria-label="Lower efficiency">&minus;</button><input type="range" id="eff" min="50" max="100" step="5"><button class="step" data-nudge="eff" data-d="5" aria-label="Higher efficiency">+</button></div>
       <div class="ctl-s">Allowance for stops, turns and GPS wobble. 100% is a perfectly straight, steady walk.</div></div>
-    <div class="ctl"><div class="lbl">Petals you get per nectar fed</div>
-      <div class="seg" id="ppn" role="group" aria-label="Petals per nectar"><button data-v="1" aria-pressed="true">1 petal</button><button data-v="2" aria-pressed="false">2 petals</button></div>
-      <div class="ctl-s">A Reddit comment says top-budded Pikmin give 2. Unconfirmed, so 1 is the safe setting.</div></div>
+    <div class="ctl"><div class="lbl">Pikmin you feed nectar to</div>
+      <div class="seg" id="ppn" role="group" aria-label="Petals per nectar"><button data-v="1" aria-pressed="true">Leaf or flower<br>1 petal per nectar</button><button data-v="2" aria-pressed="false">Bud<br>2 petals per nectar</button></div>
+      <div class="ctl-s">One nectar gives a budded Pikmin 2 petals. A leaf or already-flowered Pikmin gives 1. Feed budded Pikmin to use half the nectar.</div></div>
     <div class="readout" id="readout"></div>
     <details><summary>Calibrate with the game's own estimate</summary><div>
       <p class="muted">When you pick petals to plant, the game shows how many flowers it expects. Enter that pair here and the planner uses it instead of its own estimate.</p>
@@ -163,7 +184,9 @@ a{color:var(--accent)}
 
   <section class="card" aria-labelledby="h-notes">
     <h2 id="h-notes">Before you go</h2>
-    <div id="notes"></div>
+    <div id="notes" class="notes"></div>
+    <div class="btn-row"><button class="btn alt" id="wipe" type="button">Clear saved data</button></div>
+    <p class="muted" id="saveNote"></p>
   </section>
   <button class="jump" id="jump" type="button">Guide &darr;</button>
 </main>
@@ -433,6 +456,160 @@ function whiteTries(p){ // chance per attempt -> tries for 50% and 90%
   const f=q=>Math.ceil(Math.log(1-q)/Math.log(1-p));
   return {avg:1/p,t50:f(.5),t90:f(.9)};
 }
+
+// ---- units and durations
+const KMH_PER_MPH=1.609344, FT_PER_M=3.28084;
+const CIRCLE_CELLS=Math.round(Math.PI*40*40/(CELL_M*CELL_M)); // about 200 fresh 5 m spots in a 40 m circle (own arithmetic)
+function fmtSecs(s){s=Math.round(s);if(s<60)return s+' s';const m=Math.floor(s/60),r=s%60;return r?`${m} min ${r} s`:`${m} min`;}
+const tierRange=i=>i===0?'1-9':i===4?'40':`${i*10}-${i*10+9}`;
+
+// For n flowers: what each squad size up to yours would cost in petals and seconds inside the circle.
+// Per petal a squad plants min(cells, v x long/5 x interval) flowers, then the efficiency allowance applies.
+function tierRows(n,speedKmh,eff,squad,fppOv){
+  const v=speedKmh/3.6,top=Math.min(4,Math.floor(Math.max(1,squad)/10));
+  const rawOf=t=>Math.min(t.long*t.short,v*t.long/CELL_M*t.interval);
+  const scale=fppOv>0?fppOv/Math.max(.01,rawOf(TIERS[top])*eff):1;
+  const rows=[];
+  for(let i=0;i<=top;i++){
+    const t=TIERS[i],cells=t.long*t.short,raw=rawOf(t);
+    const fpp=Math.max(1,raw*eff*scale),petals=Math.max(1,Math.ceil(n/fpp-1e-9));
+    rows.push({i,cells,interval:t.interval,fpp,petals,secs:petals*t.interval,expected:petals*fpp,
+      fullKmh:cells/(t.long/CELL_M*t.interval)*3.6,satur:raw>=cells-1e-9});
+  }
+  return rows;
+}
+// Fewest petals first. Among ties, avoid planting more than needed (within a small allowance), then take the fastest.
+function pickTier(rows,n){
+  const minP=Math.min(...rows.map(r=>r.petals)),c=rows.filter(r=>r.petals===minP);
+  const over=r=>r.expected-n,tol=Math.max(2,.05*n),minOver=Math.min(...c.map(over));
+  return c.filter(r=>over(r)<=minOver+tol).reduce((a,b)=>b.secs<a.secs?b:a);
+}
+
+// ---- wiki icons (hosted by the Pikmin wiki; linked, not copied). Columns: White, Yellow, Red, Blue (empty = no such colour).
+const ICON_RAW={
+  petals:`Pansy,f/ff,c/c9,c/cb,a/ab
+Rose,d/d4,2/25,a/a0,1/1c
+Poinsettia,9/94,2/28,4/47,0/09
+Camellia,a/a3,e/e1,e/eb,6/68
+Plum Blossom,d/d5,0/01,e/e7,
+Cherry Blossom,9/94,,,
+Tulip,e/ec,a/a1,a/a4,4/4b
+Carnation,2/29,2/23,8/85,3/3d
+Hydrangea,6/62,,8/8a,5/5d
+Lily,c/ce,5/5c,5/58,
+Sunflower,,3/34,,
+Spider Lily,0/0b,2/20,e/ef,
+Cosmos,0/06,b/b4,5/53,
+Cyclamen,6/6a,,f/fb,1/15
+Daffodil,4/45,a/a6,,
+Windflower,a/ad,0/0c,8/8b,d/d4
+Baby Blue Eyes,,,,2/2d
+Calla Lily,1/1c,d/d2,2/25,e/e3
+Frangipani,2/2e,6/61,5/5c,
+Hibiscus,9/9f,5/59,8/8b,7/78
+Dianthus,5/52,,9/9b,6/6e
+Gentian,a/a2,,b/b7,2/29
+Chrysanthemum,3/36,0/07,6/61,f/fb
+Helleborus,6/62,5/58,7/7f,e/e3
+Cattleya,3/33,a/a5,1/15,8/81
+Hyacinth,1/1d,b/ba,f/fc,5/54
+Sweet Pea,b/b8,b/b0,1/18,3/32
+Lily of the Valley,0/08,,5/52,
+Peony,5/5c,6/60,b/bc,8/8a
+Water Lily,6/65,5/59,9/9a,e/e5
+Morning Glory,e/e3,d/de,b/b1,a/a7
+Bougainvillea,e/e2,c/c2,7/72,3/39
+Dahlia,e/ef,0/0a,f/fe,6/6d
+Clematis,8/83,6/6c,b/b1,c/ca
+Snowdrop,a/ae,7/72,8/8d,
+Freesia,d/d4,d/d4,c/c3,e/ee
+Canola Flower,7/7c,7/75,,3/31
+Anniversary Rose,c/ca,5/5f,3/35,4/45
+Iris,0/07,6/64,5/57,b/b3
+Bird of Paradise,a/a6,c/c2,a/ae,
+Celosia,8/82,e/ed,d/da,3/34
+Marigold,1/15,a/ad,1/15,
+Salvia,7/7e,9/90,4/41,e/e9
+Primrose,b/b0,1/16,d/d6,6/60
+Moth Orchid,4/4c,e/e2,b/b1,2/26
+Snapdragon,9/9c,8/8f,4/4a,6/6c
+Petunia,d/d2,c/c2,9/91,a/aa
+Parrot Tulip,f/fb,6/6d,c/c5,d/db
+Forget-Me-Not,9/9b,8/80,1/1b,f/f7
+Bellflower,e/e2,,3/35,e/e1
+Orchid Cactus,b/b4,c/cf,d/de,f/ff
+Canna Lily,9/91,0/07,4/45,
+Prairie Gentian,3/3f,e/ef,9/99,8/80
+Thistle,3/32,2/25,d/d1,c/cb`,
+  nectar:`Pansy,5/55,4/42,c/c6,3/38
+Rose,d/d2,4/40,d/d0,d/dd
+Poinsettia,1/19,b/b4,6/66,d/dd
+Camellia,2/27,d/d6,1/11,7/7a
+Plum Blossom,9/9b,9/9d,3/35,
+Cherry Blossom,b/b1,,,
+Tulip,1/15,9/96,8/85,f/f1
+Carnation,c/c3,8/89,7/77,3/3c
+Hydrangea,3/3c,,c/ce,e/e6
+Lily,2/2d,e/eb,8/87,
+Sunflower,,7/75,,
+Spider Lily,0/0a,7/74,4/45,
+Cosmos,d/dd,6/6e,a/af,
+Cyclamen,8/87,,a/a6,9/9b
+Daffodil,b/be,c/cf,,
+Windflower,c/c2,8/8d,4/4d,0/03
+Baby Blue Eyes,,,,5/55
+Calla Lily,a/a6,1/1f,c/cf,d/d3
+Frangipani,4/4e,a/a4,8/8c,
+Hibiscus,c/c6,f/fb,3/35,5/56
+Dianthus,c/cd,,8/8f,a/a4
+Gentian,a/a8,,a/ae,6/6b
+Chrysanthemum,3/32,9/93,8/82,1/19
+Helleborus,1/17,f/f5,1/1c,f/f9
+Cattleya,5/5a,2/2a,7/73,d/de
+Hyacinth,1/16,8/85,b/bb,b/be
+Sweet Pea,1/19,6/60,a/aa,d/d4
+Lily of the Valley,d/db,,e/e6,
+Peony,c/c7,5/56,f/f0,2/24
+Water Lily,c/c0,d/dc,7/78,c/c7
+Morning Glory,5/5e,7/71,4/4b,0/02
+Bougainvillea,d/d1,7/7c,7/76,c/c4
+Dahlia,a/aa,2/2d,8/8e,9/97
+Clematis,1/1c,9/92,1/1b,2/2c
+Snowdrop,8/86,f/fa,1/1b,
+Freesia,b/b5,8/8d,9/97,3/36
+Canola Flower,c/ca,1/1d,,8/86
+Anniversary Rose,4/40,e/ef,d/d0,6/6a
+Iris,5/5d,3/3f,b/bb,1/19
+Bird of Paradise,4/48,c/c4,5/54,
+Celosia,f/f8,6/6d,e/ee,9/9a
+Marigold,0/02,c/cb,6/60,
+Salvia,b/b1,e/ee,3/3f,d/da
+Primrose,2/2f,e/e3,d/d3,f/ff
+Moth Orchid,c/c3,e/e7,2/27,9/9a
+Snapdragon,f/f9,9/98,1/11,b/b5
+Petunia,3/34,1/1c,4/41,a/af
+Parrot Tulip,3/3a,0/00,8/81,0/07
+Forget-Me-Not,8/82,6/6f,f/f5,4/4c
+Bellflower,c/cf,,6/6e,d/d7
+Orchid Cactus,a/a8,4/43,7/7c,6/63
+Canna Lily,8/88,5/57,d/d0,
+Prairie Gentian,3/37,e/e9,e/e0,0/00
+Thistle,b/bf,7/74,2/2a,6/60`
+};
+const ICON_ALIAS={'Baby Blue Eyes':'nemophila','Chrysanthemum':'mum','Lily of the Valley':'convallaria','Bird of Paradise':'strelitzia'};
+const ICON_GENERIC={petals:{W:'7/7d',R:'f/fe',B:'0/0a',Y:'3/3c'},nectar:{R:'8/8c',B:'2/2c',Y:'a/a9'}}; // there is no plain white nectar icon
+const ICON_DIR={};
+for(const kind in ICON_RAW){ICON_DIR[kind]={};for(const l of ICON_RAW[kind].split('\n')){const p=l.split(',');['W','Y','R','B'].forEach((c,i)=>{if(p[i+1])ICON_DIR[kind][p[0]+'|'+c]=p[i+1];});}}
+function iconFile(kind,species,c){
+  if(!species)return `${CNAME[c]}_${kind}_icon.png`;
+  return `${CNAME[c]}_${ICON_ALIAS[species]||species.toLowerCase().replace(/ /g,'_')}_${kind}_icon.png`;
+}
+function iconUrl(kind,species,c){ // species = null for the plain colour icon
+  const dir=species?ICON_DIR[kind][species+'|'+c]:ICON_GENERIC[kind][c];
+  if(!dir)return '';
+  const f=iconFile(kind,species,c);
+  return `https://pikmin.wiki.gallery/images/thumb/${dir}/${f}/75px-${f}`;
+}
 /*ENGINE-END*/
 </script>
 
@@ -440,17 +617,50 @@ function whiteTries(p){ // chance per attempt -> tries for 50% and 90%
 (function(){
 const $=id=>document.getElementById(id);
 const LS='bloomPlanner.v1';
-const DEF={species:'Salvia',T:'W',squad:40,speed:5,eff:85,ppn:1,fppOv:0,example:true,
+const localeUnits=()=>{try{return /^en-(US|LR|MM)/i.test(navigator.language||'')?'imperial':'metric';}catch(e){return 'metric';}};
+const DEF={species:'Salvia',T:'W',squad:40,speed:5,eff:85,ppn:1,fppOv:0,example:true,units:localeUnits(),calF:'',calP:'',planId:null,pv:{},
   inv:{'S:W':{p:12,n:0},'S:R':{p:10,n:0},'S:B':{p:6,n:0},'S:Y':{p:4,n:0},'O:W':{p:30,n:0},'O:R':{p:30,n:0},'O:B':{p:0,n:0},'O:Y':{p:0,n:0}}};
 const clone=o=>JSON.parse(JSON.stringify(o));
+const num=(x,d,lo,hi)=>{x=+x;return isFinite(x)&&x>=lo&&x<=hi?x:d;};
 let st=load();
-function load(){try{const j=JSON.parse(localStorage.getItem(LS));if(j&&j.species&&speciesByName(j.species))return{...clone(DEF),...j,inv:{...clone(DEF.inv),...j.inv}};}catch(e){}return clone(DEF);}
-function save(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){}}
-const rt={planId:null,vals:{},plans:[],ctx:null,M:null};
+function load(){
+  try{
+    const j=JSON.parse(localStorage.getItem(LS));
+    if(j&&j.species&&speciesByName(j.species)){
+      const s={...clone(DEF),...j,inv:{...clone(DEF.inv),...j.inv}};
+      s.squad=Math.round(num(s.squad,DEF.squad,1,40));s.speed=num(s.speed,DEF.speed,1,18);s.eff=num(s.eff,DEF.eff,50,100);
+      s.ppn=+s.ppn===2?2:1;s.units=s.units==='imperial'?'imperial':'metric';s.fppOv=num(s.fppOv,0,0,1000);
+      if(!s.pv||typeof s.pv!=='object')s.pv={};
+      return s;
+    }
+  }catch(e){}
+  return clone(DEF);
+}
+let saved=null;
+function save(){
+  st.planId=rt.planId;st.pv=rt.vals;
+  try{localStorage.setItem(LS,JSON.stringify(st));saved=true;}catch(e){saved=false;}
+  $('saveNote').textContent=saved?'Your species, setup, stock and plan are saved on this device and come back next time you open this page.':'Saving is switched off in this browser (private window or blocked site data), so your entries will be lost when you close the page.';
+}
+const rt={planId:st.planId||null,vals:st.pv||{},plans:[],ctx:null,M:null,open:new Set()};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dot=c=>`<span class="dot ${c}" aria-hidden="true"></span>`;
 const fmt=(x,d=0)=>Number(x).toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:d});
 const slotLabel=s=>{const c=s[2],n=st.species;return s[0]==='S'?`${CNAME[c]} ${n}`:`${CNAME[c]} petals, any other species`;};
+
+/* ---------- units ---------- */
+const imp=()=>st.units==='imperial';
+const spd=kmh=>imp()?kmh/KMH_PER_MPH:kmh;       // km/h -> shown unit
+const unSpd=v=>imp()?v*KMH_PER_MPH:v;           // shown unit -> km/h
+const spdU=()=>imp()?'mph':'km/h';
+const spdTxt=kmh=>`${fmt(spd(kmh),1)} ${spdU()}`;
+const dist=m=>{if(!imp())return `${fmt(m,m<10?1:0)} m`;const ft=m*FT_PER_M;return `${fmt(ft>=100?Math.round(ft/5)*5:Math.round(ft))} ft`;};
+const SPEED_RANGE=()=>imp()?[1,11]:[2,18];
+
+/* ---------- wiki images (linked, and hidden if they fail to load) ---------- */
+const img=(kind,species,c)=>{const u=iconUrl(kind,species,c);return u?`<img class="ico" src="${u}" alt="" width="28" height="28" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:'';};
+const slotImg=(kind,slot)=>slot[0]==='S'?img(kind,st.species,slot[2]):img(kind,null,slot[2]);
+document.addEventListener('error',e=>{if(e.target&&e.target.tagName==='IMG')e.target.classList.add('x');},true);
 
 /* ---------- step 1: target ---------- */
 function renderTarget(){
@@ -468,12 +678,14 @@ function renderTarget(){
 
 /* ---------- step 2: setup ---------- */
 function renderSetup(){
+  const M=rt.M,r=$('speed'),[lo,hi]=SPEED_RANGE();
+  r.min=lo;r.max=hi;r.step=.5;r.value=Math.round(spd(st.speed)*2)/2;
   $('squad').value=st.squad;$('squadV').textContent=st.squad+' Pikmin';
-  $('speed').value=st.speed;$('speedV').textContent=fmt(st.speed,1)+' km/h'+(st.speed>16?' (too fast)':'');
+  $('speedV').textContent=spdTxt(st.speed)+(M.tooFast?' (too fast)':'');
   $('eff').value=st.eff;$('effV').textContent=st.eff+'%';
+  document.querySelectorAll('#units button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===st.units)));
   document.querySelectorAll('#ppn button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===st.ppn)));
-  const M=rt.M;
-  $('readout').innerHTML=`<div><b>${fmt(M.fpp,1)}</b><span>flowers per petal</span></div><div><b>${fmt(M.passFlowers)}</b><span>flowers per 80 m pass</span></div><div><b>${fmt(M.petalsPerMin,1)}/min</b><span>petals drain at this squad</span></div>`;
+  $('readout').innerHTML=`<div><b>${fmt(M.fpp,1)}</b><span>flowers per petal</span></div><div><b>${fmt(M.passFlowers)}</b><span>flowers per ${dist(80)} pass</span></div><div><b>${fmt(M.petalsPerMin,1)}/min</b><span>petals drain at this squad</span></div>`;
   $('calNote').textContent=st.fppOv>0?`Using your calibration: ${fmt(st.fppOv,2)} flowers per petal.`:'Using the planner’s own estimate.';
 }
 
@@ -482,7 +694,7 @@ function renderStock(){
   const sp=speciesByName(st.species),cols=colorsOf(sp);
   const row=s=>{const e=st.inv[s]||{p:0,n:0};
     return `<div class="srow" data-slot="${s}"><div class="srow-h">${dot(s[2])}${esc(slotLabel(s))}<small id="cap-${s[0]}${s[2]}"></small></div>
-    <div class="pair">${['p','n'].map(f=>`<div class="nst"><label for="in-${s[0]}${s[2]}${f}">${f==='p'?'Petals':'Nectar'}</label><div class="row">
+    <div class="pair">${['p','n'].map(f=>`<div class="nst"><label for="in-${s[0]}${s[2]}${f}" class="lbl-ico">${slotImg(f==='p'?'petals':'nectar',s)}<span>${f==='p'?'Petals':'Nectar'}</span></label><div class="row">
       <button class="step" data-slot="${s}" data-f="${f}" data-d="-1" aria-label="Fewer ${f==='p'?'petals':'nectar'}">&minus;</button>
       <input type="number" id="in-${s[0]}${s[2]}${f}" data-slot="${s}" data-f="${f}" inputmode="numeric" min="0" value="${e[f]||0}">
       <button class="step" data-slot="${s}" data-f="${f}" data-d="1" aria-label="More ${f==='p'?'petals':'nectar'}">+</button></div></div>`).join('')}</div></div>`;};
@@ -543,13 +755,32 @@ function reasons(){
   return `<details><summary>Why not the other branches</summary><div><ul class="tight">${bad.map(p=>`<li><b>${esc(p.title)}</b><br>${esc(p.reason||'')}</li>`).join('')}</ul></div></details>`;
 }
 function stepsFor(p,ev){
-  const M=rt.M,steps=[];
+  const steps=[];
   for(const k of Object.keys(ev.alloc)){
     const n=ev.alloc[k];if(!n)continue;
-    const petals=Math.max(1,Math.ceil(n/M.fpp)),have=+(st.inv[k]?.p)||0,feed=Math.max(0,petals-have),nectar=Math.ceil(feed/st.ppn);
-    steps.push({slot:k,n,petals,nectar,short:feed>0&&nectar*st.ppn<feed});
+    const rows=tierRows(n,st.speed,st.eff/100,st.squad,st.fppOv),best=pickTier(rows,n);
+    const petals=best.petals,have=+(st.inv[k]?.p)||0,feed=Math.max(0,petals-have),nectar=Math.ceil(feed/st.ppn);
+    const squadTxt=best.i===rows.length-1?`${st.squad} Pikmin`:`${tierRange(best.i)} Pikmin`;
+    steps.push({slot:k,n,petals,nectar,rows,best,squadTxt});
   }
   return steps;
+}
+const plural=(n,w)=>`${n} ${w}${n===1?'':'s'}`;
+function howHtml(s){
+  const b=s.best,M=rt.M,v=st.speed/3.6,walkM=v*b.secs,passes=walkM/CIRCLE_CHORD_M;
+  const top=s.rows[s.rows.length-1];
+  const lines=[
+    `At ${spdTxt(st.speed)} you plant about <b>${fmt(b.fpp,1)}</b> flowers per petal. That is ${b.satur?`as many as this squad can plant, so a faster walk would not help`:`below this squad’s ${b.cells} flowers per petal. At ${spdTxt(b.fullKmh)} or faster you would reach ${b.cells}`}.`,
+    `Walking that long covers about ${fmt(passes,1)} lengths across the circle (${dist(CIRCLE_CHORD_M)} each). Use ground you have not planted on yet. The game plants on a spot only once every 5 minutes.`,
+    `Expect about <b>${fmt(b.expected)}</b> flowers from ${plural(b.petals,'petal')}${b.expected-s.n>=1?`, which is ${fmt(b.expected-s.n)} more than this step needs`:''}.`
+  ];
+  const rowsHtml=s.rows.map(r=>`<tr class="${r===b?'best':''}"><td>${tierRange(r.i)}${r===b?' ✓':''}</td><td>${fmt(r.fpp,1)}</td><td>${r.petals}</td><td>${fmtSecs(r.secs)}</td></tr>`).join('');
+  const cmp=`<details class="how" data-how="${s.slot}:cmp" ${rt.open.has(s.slot+':cmp')?'open':''}><summary>Compare squad sizes</summary><div>
+    <div class="tblw"><table class="tbl"><thead><tr><th>Squad</th><th>Flowers per petal</th><th>Petals</th><th>Time in circle</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>
+    <p class="muted">Squad sizes above yours (${st.squad}) are not shown. A bigger squad plants more per petal only if you walk fast enough to reach fresh ground; otherwise it just drains petals sooner.${top!==b&&s.rows.length>1?' The ✓ row plants this step with the fewest petals and the least overshoot.':''}</p></div></details>`;
+  return `<details class="how" data-how="${s.slot}" ${rt.open.has(s.slot)?'open':''}><summary>How to plant these ${s.n} flowers</summary><div>
+    <p>Set your squad to <b>${esc(s.squadTxt)}</b>. Select <b>${plural(b.petals,'petal')}</b>. Then keep moving over fresh ground inside the circle for about <b>${fmtSecs(b.secs)}</b>. One petal lasts ${b.interval} s at this squad size, so the petals run out on their own.</p>
+    <ul class="tight">${lines.map(l=>`<li>${l}</li>`).join('')}</ul>${cmp}</div></details>`;
 }
 function refreshPlan(){
   const p=cur();if(!p)return;
@@ -560,17 +791,17 @@ function refreshPlan(){
     $('v-'+a.key).textContent=`${vals[a.key]} flowers`;
     $('s-'+a.key).textContent=`${Math.max(1,Math.ceil(vals[a.key]/M.fpp))} petals. Allowed ${rg[a.key][0]} to ${rg[a.key][1]} right now.`;
   }
-  const steps=stepsFor(p,ev),letters=steps.length;
+  const steps=stepsFor(p,ev);
   const feedList=steps.filter(s=>s.nectar>0);
-  const totalPetals=steps.reduce((s,x)=>s+x.petals,0);
-  const mins=300/M.flowersPerMin,passes=Math.ceil(300/M.passFlowers);
+  const totalPetals=steps.reduce((s,x)=>s+x.petals,0),totalSecs=steps.reduce((s,x)=>s+x.best.secs,0);
   let html=`<div class="tag">Find a Big Flower that still needs 300 flowers. Plant only inside its circle.</div>`;
-  if(feedList.length)html+=`<div><b>Feed first:</b> ${feedList.map(s=>`${s.nectar} ${esc(slotLabel(s.slot))} nectar`).join(', ')}</div>`;
-  html+=`<ol>`+steps.map(s=>`<li><div><b class="big">${s.n}</b> ${dot(s.slot[2])}<b>${esc(slotLabel(s.slot))}</b><small>Select ${s.petals} petal${s.petals===1?'':'s'}. The game should estimate about ${fmt(s.petals*M.fpp)} flowers.</small></div></li>`).join('')+`</ol>`;
+  if(feedList.length)html+=`<div><b>Feed first</b> (${st.ppn===2?'to budded Pikmin, 2 petals each':'to leaf or flower Pikmin, 1 petal each'}):<div class="feed">${feedList.map(s=>`<span>${s.nectar} ${slotImg('nectar',s.slot)} ${esc(slotLabel(s.slot))} nectar</span>`).join('')}</div></div>`;
+  html+=`<ol>`+steps.map(s=>`<li><div><b class="big">${s.n}</b> ${dot(s.slot[2])}${slotImg('petals',s.slot)}<b>${esc(slotLabel(s.slot))}</b><small>Select ${plural(s.petals,'petal')}. The game should estimate about ${fmt(s.best.expected)} flowers.</small>${howHtml(s)}</div></li>`).join('')+`</ol>`;
   const C=tally(ev.alloc).C,tip=tipOf(C,300);
   const tipTxt=tip==='?'?`??? ${st.species}`:tip==='tie'?'unclear':`${CNAME[tip]} ${st.species}`;
   html+=`<div>After step ${steps.length}, tap the flower. The tip should predict <b>${esc(tipTxt)}</b>${st.T==='W'||ctx.single?'.':`. If it shows ??? instead, a seasonal flower in the Big Flower Forecast may have no ${CNAME[st.T]} variant. That alone is not a problem.`}</div>`;
-  html+=`<div class="muted">About ${totalPetals} petals, ${passes} passes of an 80 m line (${fmt(mins,0)} min walking). Same ground needs a 5 minute gap, so use a different line for each pass.</div>`;
+  const roomy=Math.round(CIRCLE_CELLS/10)*10;
+  html+=`<div class="muted">About ${plural(totalPetals,'petal')} and ${fmtSecs(totalSecs)} inside the circle in all.${300>CIRCLE_CELLS?` The circle has room for roughly ${roomy} fresh spots at a time (an estimate), so after about ${roomy} flowers wait 5 minutes, then carry on.`:''}</div>`;
   $('guide').innerHTML=html;
   $('checks').innerHTML=ev.rules.map(r=>`<div><span class="${r.ok?'ok':'no'}" aria-hidden="true">${r.ok?'✓':'✗'}</span><span>${esc(r.text)}</span></div>`).join('');
   // odds + risk
@@ -583,18 +814,19 @@ function refreshPlan(){
       more=`<div class="banner good">Colour is decided by your plan, so this should work about 95-97% of the time. The rest is a small chance of mutating into a different seasonal flower.</div>`;
     }
   }
-  if(M.tooFast)more+=`<div class="banner bad">Above about 16 km/h the game may plant nothing. Slow down.</div>`;
+  if(M.tooFast)more+=`<div class="banner bad">Above about ${fmt(spd(16),0)} ${spdU()} the game may plant nothing. Slow down.</div>`;
   $('more').innerHTML=more;
   p.lastEv=ev;p.lastSteps=steps;
 }
 
 /* ---------- notes ---------- */
 function renderNotes(){
-  $('notes').innerHTML=`<div class="checks" style="gap:10px">
+  $('notes').innerHTML=`
   <details open><summary>Read this first</summary><div><ul class="tight">
     <li>The chart’s numbers (156, 144, 78-99, 199) count <b>flowers planted</b>, not petals. One petal plants many flowers, so you need far fewer petals than the totals suggest.</li>
     <li>The petals-to-flowers rate is a model built from community measurements. Use the calibration box in step 2 with the game’s own estimate for the best accuracy.</li>
     <li>Plants only count inside the circle. Watch the Big Flower’s progress as you go.</li>
+    <li>Nectar: feed it to <b>budded</b> Pikmin for 2 petals each. Leaf and already-flowered Pikmin give 1 petal per nectar.</li>
   </ul></div></details>
   <details><summary>Risks the chart does not cover</summary><div><ul class="tight">
     <li><b>Mutation:</b> about 3% (Pikipedia) to 5% (Reddit) of blooms become another seasonal flower. Events can raise this.</li>
@@ -607,47 +839,67 @@ function renderNotes(){
     <li>Branches and 156 / 144 / 78-99 / 199 numbers: the Big Flower blooming flowchart on Pikipedia, checked against the Pikipedia Big Flower page and the Reddit flower spawning thread.</li>
     <li>White counts as a colour in the 78-99 branch (Pikipedia). The in-game tip logic is also from Pikipedia.</li>
     <li>Colour odds: Pikipedia’s experimental table.</li>
-    <li>Planting model: Pikipedia “Flower planting” (community data: 5 m cells, rectangle by squad size, seconds per petal) plus the 5 minute cooldown. Straight-pass counts agree with Reddit reports of about 100 flowers per pass at 40 Pikmin.</li>
-    <li>Not confirmed: petals per nectar (1 or 2), the exact planting rate for your speed, and the 12-flower safety margin this planner adds.</li>
+    <li>Planting model: Pikipedia “Flower planting” (community data: 5 m / 16 ft cells, rectangle by squad size, seconds per petal) plus the 5 minute cooldown. Straight-pass counts agree with Reddit reports of about 100 flowers per pass at 40 Pikmin.</li>
+    <li>The “room for about 200 fresh spots” figure is this planner’s own arithmetic (circle area divided by cell area), not a published number.</li>
+    <li>Petals per nectar: 2 for a budded Pikmin, 1 for a leaf or flowered one (confirmed in the game).</li>
+    <li>Not confirmed: the exact planting rate for your speed, and the 12-flower safety margin this planner adds.</li>
     <li>One PurePots page says colour cannot be forced. That conflicts with the chart, Pikipedia and Reddit, so it is not used here.</li>
-  </ul></div></details></div>`;
+    <li>Nectar and petal pictures are linked from the Pikmin wiki’s image host, not copied. If they cannot load, the colour dot shows instead.</li>
+  </ul></div></details>`;
 }
 
 /* ---------- events ---------- */
+document.addEventListener('toggle',e=>{const k=e.target&&e.target.dataset&&e.target.dataset.how;if(!k)return;if(e.target.open)rt.open.add(k);else rt.open.delete(k);},true);
+let wipeArm=0;
 document.addEventListener('click',e=>{
   const t=e.target.closest('button');if(!t)return;
   if(t.dataset.color){st.T=t.dataset.color;rt.planId=null;rt.vals={};renderTarget();recompute();return;}
-  if(t.dataset.nudge){const k=t.dataset.nudge,r=$(k),v=Math.min(+r.max,Math.max(+r.min,(+st[k])+ +t.dataset.d));st[k]=v;recompute();return;}
+  if(t.dataset.nudge){const k=t.dataset.nudge;
+    if(k==='speed'){const [lo,hi]=SPEED_RANGE(),dv=Math.min(hi,Math.max(lo,Math.round((spd(st.speed)+ +t.dataset.d)*2)/2));st.speed=unSpd(dv);}
+    else{const r=$(k);st[k]=Math.min(+r.max,Math.max(+r.min,(+st[k])+ +t.dataset.d));}
+    recompute();return;}
+  if(t.closest('#units')){const u=t.dataset.v;if(u&&u!==st.units){st.units=u;const dv=Math.round(spd(st.speed)*2)/2,[lo,hi]=SPEED_RANGE();st.speed=unSpd(Math.min(hi,Math.max(lo,dv)));}recompute();return;}
   if(t.closest('#ppn')){st.ppn=+t.dataset.v;recompute();return;}
   if(t.classList.contains('step')&&t.dataset.slot){const f=t.dataset.f,s=t.dataset.slot,e2=st.inv[s]||(st.inv[s]={p:0,n:0});
     e2[f]=Math.max(0,(+e2[f]||0)+ +t.dataset.d);$('in-'+s[0]+s[2]+f).value=e2[f];st.example=false;$('exBanner').hidden=true;recompute();return;}
-  if(t.dataset.plan){rt.planId=t.dataset.plan;renderPlan(true);return;}
-  if(t.classList.contains('step')&&t.dataset.key){const p=cur(),k=t.dataset.key,r=$('r-'+k),v=Math.min(+r.max,Math.max(+r.min,rt.vals[p.id][k]+ +t.dataset.d));rt.vals[p.id]={...rt.vals[p.id],[k]:v};refreshPlan();return;}
+  if(t.dataset.plan){rt.planId=t.dataset.plan;save();renderPlan(true);return;}
+  if(t.classList.contains('step')&&t.dataset.key){const p=cur(),k=t.dataset.key,r=$('r-'+k),v=Math.min(+r.max,Math.max(+r.min,rt.vals[p.id][k]+ +t.dataset.d));rt.vals[p.id]={...rt.vals[p.id],[k]:v};save();refreshPlan();return;}
   if(t.id==='reset'){const p=cur();delete rt.vals[p.id];recompute();return;}
   if(t.id==='copy'){copyGuide();return;}
   if(t.id==='jump'){$('h-plan').scrollIntoView({behavior:'smooth',block:'start'});return;}
-  if(t.id==='calGo'){const f=+$('calF').value,pp=+$('calP').value;if(f>0&&pp>0){st.fppOv=f/pp;recompute();}return;}
-  if(t.id==='calClear'){st.fppOv=0;$('calF').value='';$('calP').value='';recompute();return;}
+  if(t.id==='calGo'){const f=+$('calF').value,pp=+$('calP').value;if(f>0&&pp>0){st.fppOv=f/pp;st.calF=$('calF').value;st.calP=$('calP').value;recompute();}return;}
+  if(t.id==='calClear'){st.fppOv=0;st.calF='';st.calP='';$('calF').value='';$('calP').value='';recompute();return;}
+  if(t.id==='wipe'){
+    if(Date.now()-wipeArm<4000){
+      wipeArm=0;t.textContent='Clear saved data';
+      try{localStorage.removeItem(LS);}catch(x){}
+      st=clone(DEF);rt.vals={};rt.planId=null;rt.open.clear();$('calF').value='';$('calP').value='';
+      renderTarget();renderStock();recompute();
+    }else{wipeArm=Date.now();t.textContent='Tap again to erase everything';setTimeout(()=>{if(wipeArm&&Date.now()-wipeArm>=4000){wipeArm=0;t.textContent='Clear saved data';}},4100);}
+    return;}
 });
 document.addEventListener('input',e=>{
   const t=e.target;
   if(t.id==='species'){st.species=t.value;rt.planId=null;rt.vals={};renderTarget();renderStock();recompute();return;}
-  if(t.id==='squad'||t.id==='speed'||t.id==='eff'){st[t.id]=+t.value;recompute();return;}
+  if(t.id==='speed'){st.speed=unSpd(+t.value);recompute();return;}
+  if(t.id==='squad'||t.id==='eff'){st[t.id]=+t.value;recompute();return;}
   if(t.matches('input[type=number][data-slot]')){const s=t.dataset.slot,f=t.dataset.f;(st.inv[s]||(st.inv[s]={p:0,n:0}))[f]=Math.max(0,Math.floor(+t.value)||0);st.example=false;$('exBanner').hidden=true;recompute();return;}
-  if(t.matches('input[type=range][data-key]')){const p=cur();rt.vals[p.id]={...rt.vals[p.id],[t.dataset.key]:+t.value};refreshPlan();return;}
+  if(t.matches('input[type=range][data-key]')){const p=cur();rt.vals[p.id]={...rt.vals[p.id],[t.dataset.key]:+t.value};save();refreshPlan();return;}
 });
 function copyGuide(){
   const p=cur();if(!p||!p.lastSteps)return;
   const lines=[`${CNAME[st.T]} ${st.species} (${p.title})`,'Find a Big Flower needing 300 flowers; plant inside its circle.'];
   const feed=p.lastSteps.filter(s=>s.nectar>0).map(s=>`${s.nectar} ${slotLabel(s.slot)} nectar`);
-  if(feed.length)lines.push('Feed first: '+feed.join(', '));
-  p.lastSteps.forEach((s,i)=>lines.push(`${i+1}. ${s.n} ${slotLabel(s.slot)} (select ${s.petals} petals)`));
+  if(feed.length)lines.push(`Feed first (${st.ppn===2?'budded':'leaf or flower'} Pikmin): `+feed.join(', '));
+  p.lastSteps.forEach((s,i)=>lines.push(`${i+1}. ${s.n} ${slotLabel(s.slot)}: select ${plural(s.petals,'petal')}, squad ${s.squadTxt}, about ${fmtSecs(s.best.secs)} inside the circle`));
   const text=lines.join('\n'),b=$('copy');
   const done=()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy guide',1500);};
   try{navigator.clipboard.writeText(text).then(done,()=>{b.textContent='Copy not allowed';});}catch(e){b.textContent='Copy not allowed';}
 }
 
 /* ---------- boot ---------- */
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
+$('calF').value=st.calF||'';$('calP').value=st.calP||'';
 renderTarget();renderStock();renderNotes();recompute();
 })();
 </script>
