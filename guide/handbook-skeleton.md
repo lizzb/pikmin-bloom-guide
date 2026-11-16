@@ -11,7 +11,7 @@ Restructure of [overview.md](overview.md). Drafted 2026-11-01. Facts are tagged 
 | ❓ | Unconfirmed, conflicting, or opinion |
 | 🕰️ | Possibly outdated (2021-2024 sources) |
 
-Source letters: **D** Discord #faq ([discord-faq.md](discord-faq.md)) · **H** official Help Center/news · **W** Pikipedia wiki · **R** Reddit notes pasted into overview.md · **L** lizz's own testing · **C** calculated here from the cited numbers.
+Source letters: **D** Discord #faq (verbatim copy kept locally, not published) · **H** official Help Center/news · **W** Pikipedia wiki · **R** Reddit notes pasted into overview.md · **L** lizz's own testing · **C** calculated here from the cited numbers.
 
 Trust order when sources disagree: D > H > W > R, and newer beats older. `🚧 migrate` lines mark content still sitting in overview.md.
 

@@ -2,28 +2,29 @@
 
 Personal notes and guides for Pikmin Bloom, kept as plain Markdown.
 
+**Live site:** https://lizzb.github.io/pikmin-bloom-guide/ (index, [Big Flower helper](https://lizzb.github.io/pikmin-bloom-guide/big-flower-helper/), [handbook](https://lizzb.github.io/pikmin-bloom-guide/handbook/)). Unofficial; not affiliated with Niantic or Nintendo.
+
 ## Contents
 
 - [Storage management](guide/storage.md) — what to keep and release with the 300-Pikmin cap, no real money
 
 - [Handbook skeleton](guide/handbook-skeleton.md) — restructure of overview.md with confidence tags (✅ confirmed / 🟡 probable / ❓ unconfirmed / 🕰️ outdated)
-- [Discord #faq, verbatim](guide/discord-faq.md) — all 36 threads from the Pikmin Bloom! Discord FAQ forum (copied 2026-11-01)
 
 ## Big Flower bloom planner
 
 [tools/bloom-planner.html](tools/bloom-planner.html) is a single-file, phone-friendly page. Pick a flower and colour, enter your petals and nectar, and it writes a short planting guide from the Pikipedia blooming flowchart, with sliders to fine-tune the mix. The guide includes a schedule of visits: which squad size to use, which petals to select, how long to stay, and when to wait 5 minutes because the circle has run out of fresh ground. An optional picture shows the ground your squad covers. Units switch between metric and imperial, entries are saved in the browser between visits, and nectar and petal pictures are linked from the Pikmin wiki's image host. Open it in a browser, or serve it with `python3 -m http.server --directory tools`. Logic tests: `node tools/test_bloom_engine.js`.
 
-## Rebuilding the handbook page
+## Publishing
 
-The handbook is also published as a private, searchable HTML page (a Claude artifact) for reading on a phone. The page is generated from `guide/handbook-skeleton.md`, so edit the Markdown, not the HTML:
+Everything on the site is built from this repo by `tools/build_site.py` and deployed by `.github/workflows/pages.yml` on every push to `main`. Edit the source, commit, push; the site updates in about a minute.
 
-```bash
-python3 raw/build_handbook_html.py guide/handbook-skeleton.md OUT.html
-```
+| Site page | Source |
+| --- | --- |
+| `/` (index) | written in `tools/build_site.py` (add a card to `CARDS` for a new page) |
+| `/big-flower-helper/` | `tools/bloom-planner.html` |
+| `/handbook/` | `guide/handbook-skeleton.md`, rendered by `raw/build_handbook_html.py` |
 
-- The script renders the sections from `## 0.` onward. The page header (title, key-number tiles, tag legend, section index) is written in the script itself.
-- Keep the confidence tags and source letters in the Markdown; the page turns them into pills and uses them for the Highlight filter.
-- The published page does not update by itself. After rebuilding, republish `OUT.html` to the same artifact link.
+Preview locally: `python3 tools/build_site.py && python3 -m http.server --directory _site`. The handbook header (title, key-number tiles, tag legend, section index) is written in `raw/build_handbook_html.py`; the sections come from the Markdown, and its confidence tags and source letters become the page's pills and Highlight filter.
 
 ## Conventions
 
