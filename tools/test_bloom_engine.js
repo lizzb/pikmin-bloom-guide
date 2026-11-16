@@ -3,7 +3,7 @@
 const fs = require('fs'), path = require('path');
 const html = fs.readFileSync(path.join(__dirname, 'bloom-planner.html'), 'utf8');
 const src = html.split('/*ENGINE-START*/')[1].split('/*ENGINE-END*/')[0];
-const E = new Function(src + '; return {SPECIES,speciesByName,colorsOf,plantingModel,buildCtx,makePlans,evalPlan,findInit,ranges,tally,tipOf,check,whiteTries,SLOTS,COLORS,tierRows,pickTier,fmtSecs,tierRange,iconUrl,CIRCLE_CELLS,KMH_PER_MPH,FT_PER_M};')();
+const E = new Function(src + '; return {SPECIES,speciesByName,colorsOf,plantingModel,buildCtx,makePlans,evalPlan,findInit,ranges,tally,tipOf,check,whiteTries,SLOTS,COLORS,tierRows,pickTier,fmtSecs,tierRange,iconUrl,CIRCLE_CELLS,KMH_PER_MPH,FT_PER_M,scheduleVisits,laneInfo,COOLDOWN_S,CIRCLE_R};')();
 
 let pass = 0, fail = 0;
 const t = (name, ok, extra) => { if (ok) pass++; else { fail++; console.log('FAIL', name, extra ?? ''); } };
@@ -142,6 +142,34 @@ for (const s of E.SPECIES) for (const c of E.colorsOf(s)) for (const k of ['peta
 t('generic petal icons', ['W', 'R', 'B', 'Y'].every(c => E.iconUrl('petals', null, c)));
 t('generic nectar icons (no white)', ['R', 'B', 'Y'].every(c => E.iconUrl('nectar', null, c)) && E.iconUrl('nectar', null, 'W') === '');
 t('alias: Chrysanthemum uses the mum files', /Red_mum_petals_icon/.test(E.iconUrl('petals', 'Chrysanthemum', 'R')));
+
+// --- Visits: the circle only has ~200 fresh spots, so a full bloom needs waits
+const mkItems = (squad, kmh, eff, ns) => ns.map((n, i) => { const rs = E.tierRows(n, kmh, eff, squad, 0), b = E.pickTier(rs, n); return { slot: 'k' + i, n, fpp: b.fpp, interval: b.interval, tier: b.i, squadTxt: String(squad), petals: b.petals }; });
+{
+  const items = mkItems(40, 5, .85, [156, 144]), r = E.scheduleVisits(items, .85);
+  t('cap = floor(201 x eff)', r.cap === 170, r.cap);
+  t('40 Pikmin at 5 km/h needs 2 visits for 300 flowers', r.visits.length === 2, r.visits.length);
+  t('no visit plants more than the cap', r.visits.every(v => v.planted <= r.cap + 1e-6));
+  t('every flower is planted', Math.abs(r.visits.reduce((a, v) => a + v.planted, 0) - 300) < 1e-6);
+  t('first visit lasts about cap / rate', Math.abs(r.visits[0].secs - r.cap / (items[0].fpp / items[0].interval)) < 2, r.visits[0].secs);
+  t('first visit ends because the ground ran out', r.visits[0].full === true && r.visits[1].full === false);
+  t('petals per step add up', items.every(it => r.visits.reduce((a, v) => a + v.items.filter(c => c.slot === it.slot).reduce((x, c) => x + c.petals, 0), 0) === it.petals));
+  t('elapsed counts the 5 minute wait', r.elapsed === r.playSecs + 300);
+  t('visit is shorter than one lane sweep', r.visits[0].secs <= E.laneInfo(4, 5).secs);
+}
+{
+  const r = E.scheduleVisits(mkItems(40, 5, 1, [156, 144]), 1);
+  t('eff 100% cap is 201', r.cap === 201 && r.visits.length === 2 && Math.round(r.visits[0].planted) === 201);
+  const slow = E.scheduleVisits(mkItems(10, 5, .85, [156, 144]), .85);
+  t('a slow-planting squad never runs out of ground', slow.visits.length === 1, slow.visits.length);
+  const small = E.scheduleVisits(mkItems(40, 5, .85, [30]), .85);
+  t('one small step fits in one visit', small.visits.length === 1 && !small.visits[0].full);
+}
+for (let i = 0; i < 5; i++) {
+  const L = E.laneInfo(i, 5);
+  t(`lanes cover the circle (tier ${i})`, L.n * L.w >= 2 * E.CIRCLE_R && (L.n - 1) * L.w < 2 * E.CIRCLE_R);
+  t(`sweep is at least the blanket time (tier ${i})`, L.secs >= L.blanketSecs - 1e-6, [L.secs, L.blanketSecs]);
+}
 
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

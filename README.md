@@ -11,7 +11,7 @@ Personal notes and guides for Pikmin Bloom, kept as plain Markdown.
 
 ## Big Flower bloom planner
 
-[tools/bloom-planner.html](tools/bloom-planner.html) is a single-file, phone-friendly page. Pick a flower and colour, enter your petals and nectar, and it writes a short planting guide from the Pikipedia blooming flowchart, with sliders to fine-tune the mix. Each step also says how many petals to select, which squad size to use and roughly how many seconds to spend inside the circle. Units switch between metric and imperial, entries are saved in the browser between visits, and nectar and petal pictures are linked from the Pikmin wiki's image host. Open it in a browser, or serve it with `python3 -m http.server --directory tools`. Logic tests: `node tools/test_bloom_engine.js`.
+[tools/bloom-planner.html](tools/bloom-planner.html) is a single-file, phone-friendly page. Pick a flower and colour, enter your petals and nectar, and it writes a short planting guide from the Pikipedia blooming flowchart, with sliders to fine-tune the mix. The guide includes a schedule of visits: which squad size to use, which petals to select, how long to stay, and when to wait 5 minutes because the circle has run out of fresh ground. An optional picture shows the ground your squad covers. Units switch between metric and imperial, entries are saved in the browser between visits, and nectar and petal pictures are linked from the Pikmin wiki's image host. Open it in a browser, or serve it with `python3 -m http.server --directory tools`. Logic tests: `node tools/test_bloom_engine.js`.
 
 ## Rebuilding the handbook page
 

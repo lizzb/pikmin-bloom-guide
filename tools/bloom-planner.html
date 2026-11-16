@@ -129,6 +129,24 @@ a{color:var(--accent)}
 .tbl th,.tbl td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
 .tbl th{font-weight:600;color:var(--muted)}
 .tbl tr.best td{font-weight:600;background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.visit{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.visit-h{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.visit-h span{color:var(--muted);font-size:13px}
+.visit ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.visit li{display:block;line-height:1.5}
+.visit li small{color:var(--muted);font-size:13px;display:inline}
+.visit li .ico{vertical-align:middle;margin:0 2px}
+.wait{text-align:center;font-size:14px;color:var(--muted);padding:2px 8px;border-left:3px solid var(--warn);background:color-mix(in srgb,var(--warn) 8%,transparent);border-radius:4px}
+.sched{display:flex;flex-direction:column;gap:8px}
+.viz{width:100%;max-width:380px;height:auto;display:block;margin:0 auto}
+.viz .v-bg{fill:var(--sunken)}.viz .v-ring{fill:none;stroke:var(--ink);stroke-width:.5}
+.viz .v-band{fill:var(--accent);opacity:.12}.viz .v-band.b2{opacity:.22}
+.viz .v-lane{stroke:var(--accent);stroke-width:.4;stroke-dasharray:1.6 1.6}
+.viz .v-other{fill:none;stroke:var(--muted);stroke-width:.35;stroke-dasharray:1 1}
+.viz .v-me{fill:var(--accent);opacity:.35;stroke:var(--accent);stroke-width:.6}
+.viz .v-dot{fill:var(--ink)}
+.viz .v-t{fill:var(--muted);font-size:3.2px;font-family:var(--font-body)}
+.viz .v-bar{stroke:var(--ink);stroke-width:.7}
 .feed{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
 .feed span{display:inline-flex;align-items:center;gap:4px}
 @media (prefers-reduced-motion:no-preference){.guide{transition:background .2s}}
@@ -162,6 +180,7 @@ a{color:var(--accent)}
       <div class="seg" id="ppn" role="group" aria-label="Petals per nectar"><button data-v="1" aria-pressed="true">Leaf or flower<br>1 petal per nectar</button><button data-v="2" aria-pressed="false">Bud<br>2 petals per nectar</button></div>
       <div class="ctl-s">One nectar gives a budded Pikmin 2 petals. A leaf or already-flowered Pikmin gives 1. Feed budded Pikmin to use half the nectar.</div></div>
     <div class="readout" id="readout"></div>
+    <details id="viz"><summary>Show the ground your squad covers</summary><div id="vizBody"></div></details>
     <details><summary>Calibrate with the game's own estimate</summary><div>
       <p class="muted">When you pick petals to plant, the game shows how many flowers it expects. Enter that pair here and the planner uses it instead of its own estimate.</p>
       <div class="calib"><div class="ctl"><label for="calF">Game says (flowers)</label><input type="number" id="calF" inputmode="numeric" min="1"></div>
@@ -485,6 +504,43 @@ function pickTier(rows,n){
   return c.filter(r=>over(r)<=minOver+tol).reduce((a,b)=>b.secs<a.secs?b:a);
 }
 
+// ---- the circle, lanes and visits
+// Pikmin wiki "Flower planting": one flower per ~5 m cell, a cell is closed for 5 minutes after it is planted.
+// Only cells inside the Big Flower's circle count, so one visit can plant at most about CIRCLE_CELLS flowers.
+const CIRCLE_R=40, CIRCLE_AREA=Math.PI*CIRCLE_R*CIRCLE_R, COOLDOWN_S=300;
+// East-west lanes across the circle, spaced one planting-rectangle apart (the rectangle's long side is across the lane).
+function laneInfo(tier,speedKmh){
+  const t=TIERS[tier],w=t.long*CELL_M,d=t.short*CELL_M,n=Math.ceil(2*CIRCLE_R/w-1e-9),lanes=[];let length=0;
+  for(let i=0;i<n;i++){
+    const y=(i-(n-1)/2)*w,edge=Math.max(0,Math.abs(y)-w/2),half=edge>=CIRCLE_R?0:Math.sqrt(CIRCLE_R*CIRCLE_R-edge*edge);
+    lanes.push({y,half});length+=2*half;
+  }
+  const v=Math.max(.1,speedKmh/3.6);
+  return {w,d,n,lanes,length,secs:length/v,blanketSecs:CIRCLE_AREA/(w*v)};
+}
+// items: [{slot,n,fpp,interval,tier,squadTxt}] planted in order. Plants second by second; a visit ends when the
+// flowers planted in the last 5 minutes would pass the circle's fresh ground (cap). Then wait 5 minutes and start again.
+function scheduleVisits(items,eff){
+  const cap=Math.max(1,Math.floor(CIRCLE_CELLS*eff)),visits=[];
+  let v=null,hist=[],win=0,t=0;
+  const open=()=>{v={secs:0,planted:0,items:[],full:false};visits.push(v);hist=[];win=0;t=0;};
+  for(const it of items){
+    const rate=it.fpp/it.interval,chunks=[];let left=it.n,ch=null;
+    while(left>1e-9){
+      if(!v){open();ch=null;}
+      if(t>=COOLDOWN_S)win-=hist[t-COOLDOWN_S];
+      const x=Math.min(rate,left);
+      if(win+x>cap+1e-9&&v.planted>0){v.full=true;v=null;continue;}
+      if(!ch){ch={slot:it.slot,flowers:0,secs:0,tier:it.tier,squadTxt:it.squadTxt,fpp:it.fpp,interval:it.interval};v.items.push(ch);chunks.push(ch);}
+      hist[t]=x;win+=x;t++;ch.flowers+=x;ch.secs+=x/rate;v.secs=t;v.planted+=x;left-=x;
+    }
+    let cum=0,done=0; // whole petals per visit, adding up to the step's total
+    for(const c of chunks){cum+=c.flowers;const p=Math.ceil(cum/it.fpp-1e-9);c.petals=p-done;done=p;}
+  }
+  const playSecs=visits.reduce((a,x)=>a+x.secs,0),waitSecs=Math.max(0,visits.length-1)*COOLDOWN_S;
+  return {cap,visits,playSecs,waitSecs,elapsed:playSecs+waitSecs};
+}
+
 // ---- wiki icons (hosted by the Pikmin wiki; linked, not copied). Columns: White, Yellow, Red, Blue (empty = no such colour).
 const ICON_RAW={
   petals:`Pansy,f/ff,c/c9,c/cb,a/ab
@@ -686,7 +742,28 @@ function renderSetup(){
   document.querySelectorAll('#units button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===st.units)));
   document.querySelectorAll('#ppn button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===st.ppn)));
   $('readout').innerHTML=`<div><b>${fmt(M.fpp,1)}</b><span>flowers per petal</span></div><div><b>${fmt(M.passFlowers)}</b><span>flowers per ${dist(80)} pass</span></div><div><b>${fmt(M.petalsPerMin,1)}/min</b><span>petals drain at this squad</span></div>`;
+  renderViz();
   $('calNote').textContent=st.fppOv>0?`Using your calibration: ${fmt(st.fppOv,2)} flowers per petal.`:'Using the planner’s own estimate.';
+}
+
+function renderViz(){
+  const top=Math.min(4,Math.floor(Math.max(1,st.squad)/10)),L=laneInfo(top,st.speed),T=TIERS[top],R=CIRCLE_R,M=rt.M;
+  const mid=L.lanes[Math.floor((L.n-1)/2)],px=-20,py=mid.y,f=x=>(+x).toFixed(1);
+  const bands=L.lanes.map((l,i)=>`<rect class="v-band${i%2?' b2':''}" x="${-R}" y="${f(l.y-L.w/2)}" width="${2*R}" height="${L.w}"/>`).join('');
+  const lines=L.lanes.map(l=>`<line class="v-lane" x1="${f(-l.half)}" x2="${f(l.half)}" y1="${f(l.y)}" y2="${f(l.y)}"/>`).join('');
+  const others=TIERS.slice(0,top).map(q=>{const w=q.short*CELL_M,h=q.long*CELL_M;return `<rect class="v-other" x="${f(px-w/2)}" y="${f(py-h/2)}" width="${w}" height="${h}"/>`;}).join('');
+  const me=`<rect class="v-me" x="${f(px-L.d/2)}" y="${f(py-L.w/2)}" width="${L.d}" height="${L.w}"/>`;
+  const barM=imp()?30/FT_PER_M:10,barTxt=imp()?'30 ft':'10 m';
+  const cap=Math.max(1,Math.floor(CIRCLE_CELLS*st.eff/100)),rate=M.fpp/T.interval;
+  const limit=rate*COOLDOWN_S<=cap?`A squad this size plants slowly enough that spots reopen before you run out of fresh ground.`:`At your rate (${fmt(M.fpp,1)} flowers per ${T.interval} s petal) the circle runs out of fresh ground after about ${fmtSecs(cap/rate)} of planting.`;
+  $('vizBody').innerHTML=`<svg class="viz" viewBox="-47 -46 94 92" role="img" aria-label="Top view of the ${dist(2*R)} planting circle with your squad’s planting rectangle and the lanes that cover it">
+    <defs><clipPath id="vc"><circle r="${R}"/></clipPath><pattern id="vg" width="${CELL_M}" height="${CELL_M}" patternUnits="userSpaceOnUse" x="-2.5" y="-2.5"><path d="M${CELL_M} 0H0V${CELL_M}" fill="none" stroke="currentColor" stroke-width=".15" opacity=".35"/></pattern></defs>
+    <circle class="v-bg" r="${R}"/><circle r="${R}" fill="url(#vg)" style="color:var(--muted)"/>
+    <g clip-path="url(#vc)">${bands}</g>${lines}<circle class="v-ring" r="${R}"/>${others}${me}<circle class="v-dot" cx="${px}" cy="${py}" r="1.1"/>
+    <text class="v-t" x="-46" y="1.2">W</text><text class="v-t" x="43.6" y="1.2">E</text>
+    <line class="v-bar" x1="${-R}" x2="${f(-R+barM)}" y1="43.5" y2="43.5"/><text class="v-t" x="${f(-R+barM+1.5)}" y="44.6">${barTxt}</text></svg>
+    <p class="muted"><b>Filled box:</b> what your squad of ${st.squad} plants around you at once, ${T.short} by ${T.long} spots (${dist(L.d)} by ${dist(L.w)}). <b>Dashed boxes:</b> smaller squads. <b>Dashed lines:</b> east-west lanes, one box apart, that cover the whole circle. Faint squares are the game’s ${dist(CELL_M)} spots. The picture is to scale.</p>
+    <p class="muted">The circle is ${dist(2*R)} across and holds about ${CIRCLE_CELLS} spots. The game plants one flower per spot and keeps that spot closed for 5 minutes. At ${spdTxt(st.speed)} one sweep of all ${L.n} lanes takes about ${fmtSecs(L.secs)}. ${limit}</p>`;
 }
 
 /* ---------- step 3: stock ---------- */
@@ -767,20 +844,35 @@ function stepsFor(p,ev){
 }
 const plural=(n,w)=>`${n} ${w}${n===1?'':'s'}`;
 function howHtml(s){
-  const b=s.best,M=rt.M,v=st.speed/3.6,walkM=v*b.secs,passes=walkM/CIRCLE_CHORD_M;
-  const top=s.rows[s.rows.length-1];
+  const b=s.best,top=s.rows[s.rows.length-1];
+  const where=(rt.sch?rt.sch.visits:[]).map((v,i)=>{const c=v.items.filter(x=>x.slot===s.slot);return c.length?`visit ${i+1}: ${plural(c.reduce((a,x)=>a+x.petals,0),'petal')}`:null;}).filter(Boolean);
   const lines=[
     `At ${spdTxt(st.speed)} you plant about <b>${fmt(b.fpp,1)}</b> flowers per petal. That is ${b.satur?`as many as this squad can plant, so a faster walk would not help`:`below this squad’s ${b.cells} flowers per petal. At ${spdTxt(b.fullKmh)} or faster you would reach ${b.cells}`}.`,
-    `Walking that long covers about ${fmt(passes,1)} lengths across the circle (${dist(CIRCLE_CHORD_M)} each). Use ground you have not planted on yet. The game plants on a spot only once every 5 minutes.`,
     `Expect about <b>${fmt(b.expected)}</b> flowers from ${plural(b.petals,'petal')}${b.expected-s.n>=1?`, which is ${fmt(b.expected-s.n)} more than this step needs`:''}.`
   ];
   const rowsHtml=s.rows.map(r=>`<tr class="${r===b?'best':''}"><td>${tierRange(r.i)}${r===b?' ✓':''}</td><td>${fmt(r.fpp,1)}</td><td>${r.petals}</td><td>${fmtSecs(r.secs)}</td></tr>`).join('');
   const cmp=`<details class="how" data-how="${s.slot}:cmp" ${rt.open.has(s.slot+':cmp')?'open':''}><summary>Compare squad sizes</summary><div>
-    <div class="tblw"><table class="tbl"><thead><tr><th>Squad</th><th>Flowers per petal</th><th>Petals</th><th>Time in circle</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>
-    <p class="muted">Squad sizes above yours (${st.squad}) are not shown. A bigger squad plants more per petal only if you walk fast enough to reach fresh ground; otherwise it just drains petals sooner.${top!==b&&s.rows.length>1?' The ✓ row plants this step with the fewest petals and the least overshoot.':''}</p></div></details>`;
+    <div class="tblw"><table class="tbl"><thead><tr><th>Squad</th><th>Flowers per petal</th><th>Petals</th><th>Planting time</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>
+    <p class="muted">Squad sizes above yours (${st.squad}) are not shown. A bigger squad plants more per petal only if you walk fast enough to reach fresh ground; otherwise it just drains petals sooner. Planting time is the petals’ running time; the circle’s fresh ground limits how much of it fits in one visit (see the schedule).${top!==b&&s.rows.length>1?' The ✓ row plants this step with the fewest petals and the least overshoot.':''}</p></div></details>`;
   return `<details class="how" data-how="${s.slot}" ${rt.open.has(s.slot)?'open':''}><summary>How to plant these ${s.n} flowers</summary><div>
-    <p>Set your squad to <b>${esc(s.squadTxt)}</b>. Select <b>${plural(b.petals,'petal')}</b>. Then keep moving over fresh ground inside the circle for about <b>${fmtSecs(b.secs)}</b>. One petal lasts ${b.interval} s at this squad size, so the petals run out on their own.</p>
+    <p>Set your squad to <b>${esc(s.squadTxt)}</b> and select <b>${plural(b.petals,'petal')}</b> in total${where.length?` (${where.join(', ')})`:''}. One petal lasts ${b.interval} s at this squad size, so ${plural(b.petals,'petal')} plant for about <b>${fmtSecs(b.secs)}</b> altogether.</p>
     <ul class="tight">${lines.map(l=>`<li>${l}</li>`).join('')}</ul>${cmp}</div></details>`;
+}
+function scheduleHtml(sch){
+  const out=[];
+  sch.visits.forEach((v,i)=>{
+    if(i>0)out.push(`<div class="wait">Stop planting and wait 5 minutes. The spots you planted open up again after 5 minutes. You can wait inside or outside the circle.</div>`);
+    const L=laneInfo(v.items[0].tier,st.speed);
+    let prev=null;
+    const lis=v.items.map(c=>{
+      const sq=c.squadTxt!==prev?`Squad of <b>${esc(c.squadTxt)}</b>. `:'';prev=c.squadTxt;
+      return `<li>${sq}Select <b>${plural(c.petals,'petal')}</b> of ${slotImg('petals',c.slot)}<b>${esc(slotLabel(c.slot))}</b> <small>about ${fmtSecs(c.secs)}, ${fmt(c.flowers)} flowers</small></li>`;
+    }).join('');
+    const lane=`Walk east-west lanes across the circle, about ${dist(L.w)} apart (${L.n} lanes), so every stretch is ground you have not planted yet. One sweep of all lanes takes about ${fmtSecs(L.secs)} at ${spdTxt(st.speed)}.${v.secs>L.secs?' Repeat the lanes in the same order after that.':''}`;
+    const end=v.full?`Stay about <b>${fmtSecs(v.secs)}</b>. After that the circle has no fresh ground left.`:`Stay about <b>${fmtSecs(v.secs)}</b> and the bloom is done.`;
+    out.push(`<div class="visit"><div class="visit-h"><b>Visit ${i+1}</b><span>about ${fmtSecs(v.secs)} in the circle</span></div><p class="muted">${lane}</p><ul>${lis}</ul><div>${end}</div></div>`);
+  });
+  return `<div class="sched"><h3>Schedule</h3>${out.join('')}</div>`;
 }
 function refreshPlan(){
   const p=cur();if(!p)return;
@@ -792,16 +884,17 @@ function refreshPlan(){
     $('s-'+a.key).textContent=`${Math.max(1,Math.ceil(vals[a.key]/M.fpp))} petals. Allowed ${rg[a.key][0]} to ${rg[a.key][1]} right now.`;
   }
   const steps=stepsFor(p,ev);
+  rt.sch=scheduleVisits(steps.map(x=>({slot:x.slot,n:x.n,fpp:x.best.fpp,interval:x.best.interval,tier:x.best.i,squadTxt:x.squadTxt})),st.eff/100);
   const feedList=steps.filter(s=>s.nectar>0);
-  const totalPetals=steps.reduce((s,x)=>s+x.petals,0),totalSecs=steps.reduce((s,x)=>s+x.best.secs,0);
+  const totalPetals=steps.reduce((s,x)=>s+x.petals,0),sch=rt.sch;
   let html=`<div class="tag">Find a Big Flower that still needs 300 flowers. Plant only inside its circle.</div>`;
   if(feedList.length)html+=`<div><b>Feed first</b> (${st.ppn===2?'to budded Pikmin, 2 petals each':'to leaf or flower Pikmin, 1 petal each'}):<div class="feed">${feedList.map(s=>`<span>${s.nectar} ${slotImg('nectar',s.slot)} ${esc(slotLabel(s.slot))} nectar</span>`).join('')}</div></div>`;
   html+=`<ol>`+steps.map(s=>`<li><div><b class="big">${s.n}</b> ${dot(s.slot[2])}${slotImg('petals',s.slot)}<b>${esc(slotLabel(s.slot))}</b><small>Select ${plural(s.petals,'petal')}. The game should estimate about ${fmt(s.best.expected)} flowers.</small>${howHtml(s)}</div></li>`).join('')+`</ol>`;
+  html+=scheduleHtml(sch);
   const C=tally(ev.alloc).C,tip=tipOf(C,300);
   const tipTxt=tip==='?'?`??? ${st.species}`:tip==='tie'?'unclear':`${CNAME[tip]} ${st.species}`;
-  html+=`<div>After step ${steps.length}, tap the flower. The tip should predict <b>${esc(tipTxt)}</b>${st.T==='W'||ctx.single?'.':`. If it shows ??? instead, a seasonal flower in the Big Flower Forecast may have no ${CNAME[st.T]} variant. That alone is not a problem.`}</div>`;
-  const roomy=Math.round(CIRCLE_CELLS/10)*10;
-  html+=`<div class="muted">About ${plural(totalPetals,'petal')} and ${fmtSecs(totalSecs)} inside the circle in all.${300>CIRCLE_CELLS?` The circle has room for roughly ${roomy} fresh spots at a time (an estimate), so after about ${roomy} flowers wait 5 minutes, then carry on.`:''}</div>`;
+  html+=`<div>When the last step is done, tap the flower. The tip should predict <b>${esc(tipTxt)}</b>${st.T==='W'||ctx.single?'.':`. If it shows ??? instead, a seasonal flower in the Big Flower Forecast may have no ${CNAME[st.T]} variant. That alone is not a problem.`}</div>`;
+  html+=`<div class="muted">About ${plural(totalPetals,'petal')}. ${fmtSecs(sch.playSecs)} of planting${sch.visits.length>1?` over ${sch.visits.length} visits, about ${fmtSecs(sch.elapsed)} start to finish with the waits`:''}. The circle only has about ${CIRCLE_CELLS} spots, so one visit plants at most about ${sch.cap} flowers (${st.eff}% of ${CIRCLE_CELLS}).</div>`;
   $('guide').innerHTML=html;
   $('checks').innerHTML=ev.rules.map(r=>`<div><span class="${r.ok?'ok':'no'}" aria-hidden="true">${r.ok?'✓':'✗'}</span><span>${esc(r.text)}</span></div>`).join('');
   // odds + risk
@@ -840,7 +933,10 @@ function renderNotes(){
     <li>White counts as a colour in the 78-99 branch (Pikipedia). The in-game tip logic is also from Pikipedia.</li>
     <li>Colour odds: Pikipedia’s experimental table.</li>
     <li>Planting model: Pikipedia “Flower planting” (community data: 5 m / 16 ft cells, rectangle by squad size, seconds per petal) plus the 5 minute cooldown. Straight-pass counts agree with Reddit reports of about 100 flowers per pass at 40 Pikmin.</li>
-    <li>The “room for about 200 fresh spots” figure is this planner’s own arithmetic (circle area divided by cell area), not a published number.</li>
+    <li>Planting rules from the Pikmin wiki “Flower planting” page: the world is split into cells of about 5 by 5 m, a cell takes one flower, and it is closed to the same player for 5 minutes after. The rectangle size by squad size and the advice that east-west walking plants more come from the same page.</li>
+    <li>The “about 200 spots in the circle” figure, the visit lengths and the lane layout are this planner’s own arithmetic (circle area divided by cell area, times your efficiency), not published numbers.</li>
+    <li>The planner waits a full 5 minutes after you stop. Cells are timed one by one, so retracing the same lanes 5 minutes after you <i>started</i> a visit may also work. That is not confirmed, so it is not used.</li>
+    <li>The Flower Planting Accelerator plants 2 flowers per cell and doubles petal use. It is not modelled, so with it a visit can plant about twice as much.</li>
     <li>Petals per nectar: 2 for a budded Pikmin, 1 for a leaf or flowered one (confirmed in the game).</li>
     <li>Not confirmed: the exact planting rate for your speed, and the 12-flower safety margin this planner adds.</li>
     <li>One PurePots page says colour cannot be forced. That conflicts with the chart, Pikipedia and Reddit, so it is not used here.</li>
@@ -887,11 +983,17 @@ document.addEventListener('input',e=>{
   if(t.matches('input[type=range][data-key]')){const p=cur();rt.vals[p.id]={...rt.vals[p.id],[t.dataset.key]:+t.value};save();refreshPlan();return;}
 });
 function copyGuide(){
-  const p=cur();if(!p||!p.lastSteps)return;
+  const p=cur();if(!p||!p.lastSteps||!rt.sch)return;
   const lines=[`${CNAME[st.T]} ${st.species} (${p.title})`,'Find a Big Flower needing 300 flowers; plant inside its circle.'];
   const feed=p.lastSteps.filter(s=>s.nectar>0).map(s=>`${s.nectar} ${slotLabel(s.slot)} nectar`);
   if(feed.length)lines.push(`Feed first (${st.ppn===2?'budded':'leaf or flower'} Pikmin): `+feed.join(', '));
-  p.lastSteps.forEach((s,i)=>lines.push(`${i+1}. ${s.n} ${slotLabel(s.slot)}: select ${plural(s.petals,'petal')}, squad ${s.squadTxt}, about ${fmtSecs(s.best.secs)} inside the circle`));
+  rt.sch.visits.forEach((v,i)=>{
+    if(i>0)lines.push('Stop planting and wait 5 minutes.');
+    const L=laneInfo(v.items[0].tier,st.speed);
+    lines.push(`Visit ${i+1} (about ${fmtSecs(v.secs)} in the circle): walk east-west lanes ${dist(L.w)} apart over fresh ground.`);
+    let prev=null;
+    v.items.forEach(c=>{lines.push(`- ${c.squadTxt!==prev?`squad ${c.squadTxt}, `:''}select ${plural(c.petals,'petal')} of ${slotLabel(c.slot)} (about ${fmtSecs(c.secs)}, ${fmt(c.flowers)} flowers)`);prev=c.squadTxt;});
+  });
   const text=lines.join('\n'),b=$('copy');
   const done=()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy guide',1500);};
   try{navigator.clipboard.writeText(text).then(done,()=>{b.textContent='Copy not allowed';});}catch(e){b.textContent='Copy not allowed';}
